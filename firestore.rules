@@ -34,5 +34,10 @@ service cloud.firestore {
     match /suppliers/{id} {
       allow read, write: if isAdmin();
     }
+
+    match /customers/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isTeam());
+      allow write: if isSignedIn() && request.auth.uid == uid;
+    }
   }
 }

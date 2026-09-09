@@ -251,7 +251,17 @@ const FIREBASE_CONFIG = {
 
 <header class="site">
   <div class="nav-wrap">
-    <div class="brand" onclick="go('store')" style="cursor:pointer"><img src="zaro-logo.png" alt="ZARO"></div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="brand" onclick="go('store')" style="cursor:pointer"><img src="zaro-logo.png" alt="ZARO"></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <a href="https://wa.me/201131119575" target="_blank" rel="noopener" title="تواصل واتساب" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#25D366;color:#fff">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2zm5.86 14.05c-.24.68-1.39 1.3-1.93 1.38-.5.08-1.13.11-1.82-.11-.42-.13-.96-.31-1.65-.61-2.9-1.25-4.8-4.17-4.94-4.36-.14-.19-1.18-1.57-1.18-3s.74-2.12 1-2.41c.26-.29.57-.36.76-.36h.55c.18 0 .42-.07.65.5.24.58.81 2 .88 2.15.07.14.12.31.02.5-.1.19-.15.31-.29.48-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.76 1.25 1.63 2.02 1.12 1 2.06 1.31 2.35 1.46.29.15.46.13.63-.08.17-.21.72-.84.91-1.13.19-.29.38-.24.63-.14.26.1 1.63.77 1.91.91.29.14.48.21.55.33.07.13.07.72-.17 1.4z"/></svg>
+        </a>
+        <a href="https://www.facebook.com/share/19gYbwSUyr/" target="_blank" rel="noopener" title="صفحتنا على فيسبوك" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#1877F2;color:#fff">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06C2 17.08 5.66 21.24 10.44 22v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22C18.34 21.24 22 17.08 22 12.06z"/></svg>
+        </a>
+      </div>
+    </div>
     <nav class="links" id="navLinks">
       <button data-view="store" class="active" onclick="go('store')">المتجر</button>
       <button data-view="my-orders" onclick="go('my-orders')">طلباتي</button>
@@ -444,6 +454,29 @@ const FIREBASE_CONFIG = {
   </div>
 </div>
 
+<!-- نموذج استكمال بيانات العميل بعد أول تسجيل دخول -->
+<div class="modal-wrap dark-modal" id="profileModalWrap">
+  <div class="modal">
+    <h2>استكمال بياناتك</h2>
+    <div class="sub">خطوة أخيرة قبل ما تبدأ — البيانات دي هنستخدمها في توصيل طلباتك.</div>
+    <form id="profileForm" onsubmit="submitProfile(event)">
+      <div class="field"><label>البريد الإلكتروني</label><input type="email" id="pfEmail" disabled></div>
+      <div class="field"><label>الاسم بالكامل</label><input type="text" id="pfName" required></div>
+      <div class="field"><label>رقم الموبايل</label><input type="tel" id="pfPhone" required></div>
+      <div class="field"><label>المحافظة</label>
+        <select id="pfGov" onchange="onGovChange('pfGov','pfMarkaz')" required></select>
+      </div>
+      <div class="field"><label>المركز / المدينة</label>
+        <select id="pfMarkaz" required disabled><option value="">اختر المحافظة أولاً</option></select>
+      </div>
+      <div class="field"><label>العنوان بالتفصيل</label>
+        <textarea id="pfAddress" required placeholder="اسم الشارع، رقم العقار، علامة مميزة قريبة..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-emerald btn-block">حفظ ومتابعة</button>
+    </form>
+  </div>
+</div>
+
 <!-- نموذج إضافة/تعديل منتج -->
 <div class="modal-wrap dark-modal" id="productModalWrap">
   <div class="modal">
@@ -605,6 +638,7 @@ auth.onAuthStateChanged(async user=>{
       const roleDoc = await db.collection('roles').doc((user.email||'').toLowerCase()).get();
       currentRole = roleDoc.exists ? (roleDoc.data().role||'customer') : 'customer';
     }catch(e){ currentRole='customer'; }
+    checkCustomerProfile(user);
   } else {
     authArea.innerHTML = `<button class="g-btn" onclick="signIn()" style="padding:8px 12px;font-size:13px">
       <svg viewBox="0 0 48 48" style="width:16px;height:16px"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-2.1 14.1-5.5l-6.5-5.4C29.6 34.9 27 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.6 39.7 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.4-2.3 4.4-4.3 5.9l6.5 5.4C40.8 36.6 44 30.8 44 24c0-1.4-.1-2.7-.4-3.5z"/></svg>
@@ -647,6 +681,97 @@ function refreshRoleBoundListeners(){
     listenAdminOrders();
     listenRoles();
     listenSuppliers();
+  }
+}
+
+/* ============================================================
+   بيانات المحافظات والمراكز (يمكن تعديلها/إضافة عليها بحرية)
+   ============================================================ */
+const EGYPT_DATA = {
+  "القاهرة": ["مدينة نصر","المعادي","حلوان","مصر الجديدة","عين شمس","المطرية","الزيتون","السيدة زينب","شبرا","القاهرة الجديدة","التجمع الخامس","المقطم","الدرب الأحمر","الزمالك","الوايلي"],
+  "الجيزة": ["الدقي","العجوزة","الهرم","فيصل","إمبابة","بولاق الدكرور","أوسيم","كرداسة","أبو النمرس","الصف","أطفيح","البدرشين","العياط","الحوامدية","6 أكتوبر","الشيخ زايد","منشأة القناطر"],
+  "الإسكندرية": ["المنتزه","سيدي جابر","سموحة","محرم بك","العطارين","الجمرك","العجمي","برج العرب","العامرية","الدخيلة","المعمورة","أبو قير","كرموز","باكوس"],
+  "الدقهلية": ["المنصورة","طلخا","ميت غمر","دكرنس","المنزلة","تمي الأمديد","أجا","بلقاس","السنبلاوين","شربين","منية النصر","الجمالية","نبروه","بني عبيد"],
+  "البحر الأحمر": ["الغردقة","سفاجا","القصير","مرسى علم","الشلاتين","حلايب","رأس غارب"],
+  "البحيرة": ["دمنهور","كفر الدوار","رشيد","إدكو","أبو المطامير","أبو حمص","الدلنجات","المحمودية","إيتاي البارود","حوش عيسى","شبراخيت","كوم حمادة","بدر","وادي النطرون"],
+  "الفيوم": ["الفيوم","طامية","سنورس","إطسا","إبشواي","يوسف الصديق"],
+  "الغربية": ["طنطا","المحلة الكبرى","كفر الزيات","زفتى","السنطة","سمنود","بسيون","قطور"],
+  "الإسماعيلية": ["الإسماعيلية","فايد","القنطرة شرق","القنطرة غرب","التل الكبير","القصاصين"],
+  "المنوفية": ["شبين الكوم","منوف","سرس الليان","أشمون","الباجور","قويسنا","تلا","الشهداء","بركة السبع"],
+  "المنيا": ["المنيا","ملوي","سمالوط","مغاغة","بني مزار","مطاي","أبو قرقاص","دير مواس","العدوة"],
+  "القليوبية": ["بنها","قليوب","شبرا الخيمة","القناطر الخيرية","طوخ","قها","الخانكة","كفر شكر","شبين القناطر","الخصوص"],
+  "الوادي الجديد": ["الخارجة","الداخلة","الفرافرة","باريس","بلاط"],
+  "السويس": ["السويس","عتاقة","الجناين","فيصل"],
+  "أسوان": ["أسوان","كوم أمبو","إدفو","دراو","نصر النوبة","البصيلية","الرديسية","أبو سمبل"],
+  "أسيوط": ["أسيوط","ديروط","منفلوط","القوصية","أبنوب","أبوتيج","ساحل سليم","البداري","صدفا","الغنايم"],
+  "بني سويف": ["بني سويف","الواسطى","ناصر","إهناسيا","ببا","سمسطا","الفشن"],
+  "بورسعيد": ["بورسعيد","بورفؤاد","الضواحي","الزهور","الشرق","المناخ","الجنوب"],
+  "دمياط": ["دمياط","رأس البر","فارسكور","الزرقا","كفر سعد","الروضة","كفر البطيخ"],
+  "الشرقية": ["الزقازيق","بلبيس","أبو حماد","أبو كبير","منيا القمح","ههيا","ديرب نجم","فاقوس","الحسينية","كفر صقر","مشتول السوق","القرين","صان الحجر","الإبراهيمية","القنايات"],
+  "جنوب سيناء": ["الطور","شرم الشيخ","دهب","نويبع","طابا","سانت كاترين","أبو رديس","رأس سدر"],
+  "كفر الشيخ": ["كفر الشيخ","دسوق","فوه","مطوبس","بلطيم","بيلا","الحامول","سيدي سالم","الرياض","قلين","سيدي غازي"],
+  "مطروح": ["مرسى مطروح","الحمام","العلمين","النجيلة","سيدي براني","السلوم","سيوة"],
+  "الأقصر": ["الأقصر","إسنا","أرمنت","الزينية","البياضية","القرنة","الطود"],
+  "قنا": ["قنا","نجع حمادي","دشنا","قوص","نقادة","أبوتشت","فرشوط","الوقف"],
+  "شمال سيناء": ["العريش","الشيخ زويد","رفح","بئر العبد","الحسنة","نخل"],
+  "سوهاج": ["سوهاج","أخميم","جرجا","طما","طهطا","البلينا","المراغة","ساقلته","دار السلام","المنشأة","جهينة"]
+};
+
+function populateGovernorates(selectId){
+  const sel = document.getElementById(selectId);
+  if(!sel) return;
+  sel.innerHTML = '<option value="">اختر المحافظة</option>' +
+    Object.keys(EGYPT_DATA).map(g=>`<option value="${g}">${g}</option>`).join('');
+}
+function onGovChange(govSelectId, markazSelectId){
+  const gov = document.getElementById(govSelectId).value;
+  const markazSel = document.getElementById(markazSelectId);
+  const list = EGYPT_DATA[gov] || [];
+  markazSel.innerHTML = '<option value="">اختر المركز/المدينة</option>' +
+    list.map(m=>`<option value="${m}">${m}</option>`).join('');
+  markazSel.disabled = !gov;
+}
+populateGovernorates('pfGov');
+
+/* ============================================================
+   بيانات العميل الأساسية (تُطلب مرة واحدة بعد أول تسجيل دخول)
+   ============================================================ */
+async function checkCustomerProfile(user){
+  if(!user) return;
+  try{
+    const doc = await db.collection('customers').doc(user.uid).get();
+    if(doc.exists && doc.data().governorate && doc.data().phone){
+      document.getElementById('profileModalWrap').classList.remove('active');
+      return;
+    }
+  }catch(e){ /* لو فشل القراءة نسيب الفورم يظهر برضه */ }
+  document.getElementById('pfEmail').value = user.email||'';
+  document.getElementById('pfName').value = user.displayName||'';
+  document.getElementById('profileModalWrap').classList.add('active');
+}
+async function submitProfile(e){
+  e.preventDefault();
+  if(!currentUser){ toast('سجّل الدخول الأول'); return; }
+  const data = {
+    uid: currentUser.uid,
+    email: currentUser.email||'',
+    name: document.getElementById('pfName').value.trim(),
+    phone: document.getElementById('pfPhone').value.trim(),
+    governorate: document.getElementById('pfGov').value,
+    markaz: document.getElementById('pfMarkaz').value,
+    address: document.getElementById('pfAddress').value.trim(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  try{
+    await db.collection('customers').doc(currentUser.uid).set(data, {merge:true});
+    document.getElementById('profileModalWrap').classList.remove('active');
+    toast('تم حفظ بياناتك');
+    // نملى بيانات فورم الطلب تلقائيًا من نفس البيانات
+    document.getElementById('ckName').value = data.name;
+    document.getElementById('ckPhone').value = data.phone;
+    document.getElementById('ckAddress').value = `${data.governorate} - ${data.markaz} - ${data.address}`;
+  }catch(err){
+    toast('حصل خطأ في الحفظ: '+err.message);
   }
 }
 
