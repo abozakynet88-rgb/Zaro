@@ -77,28 +77,32 @@
   .view{display:none;}
   .view.active{display:block;}
 
-  /* ---------- المتجر: سلايدر رئيسي كبير للمنتجات ---------- */
+  /* ---------- المتجر: سلايدر رئيسي كبير للمنتجات (نظام سحب يمين/يسار زي المواقع الإخبارية) ---------- */
   .hero-slider{
     position:relative;border-radius:20px;overflow:hidden;margin:20px 0 8px;
     background-color:#0f0f0f;
-    background-image:radial-gradient(rgba(255,255,255,.07) 1.4px, transparent 1.4px);
-    background-size:16px 16px;
     border:1px solid var(--line);
   }
-  .hero-slides{position:relative;aspect-ratio:16/8;}
+  .hero-slides{position:relative;aspect-ratio:16/8;overflow:hidden;}
+  .hero-track{display:flex;height:100%;width:100%;direction:ltr;transition:transform .55s cubic-bezier(.4,0,.2,1);}
   .hero-slide{
-    position:absolute;inset:0;display:flex;align-items:center;gap:30px;padding:34px 46px;
-    opacity:0;pointer-events:none;transition:opacity .55s ease;cursor:pointer;
+    flex:0 0 100%;width:100%;height:100%;position:relative;cursor:pointer;
+    background-color:#0f0f0f;
+    background-image:radial-gradient(rgba(255,255,255,.07) 1.4px, transparent 1.4px);
+    background-size:16px 16px;
+    display:flex;align-items:center;justify-content:center;
   }
-  .hero-slide.on{opacity:1;pointer-events:auto;}
-  .hero-slide-img{flex:0 0 46%;height:100%;display:flex;align-items:center;justify-content:center;}
-  .hero-slide-img img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 10px 26px rgba(0,0,0,.55));}
-  .hero-slide-info{flex:1;color:#fff;min-width:0;}
-  .hero-slide-info .tag{display:inline-block;background:var(--copper);color:#0a0a0a;font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:99px;margin-bottom:10px;}
-  .hero-slide-info h1{font-size:26px;line-height:1.25;margin:0 0 10px;color:#fff;}
-  .hero-slide-info .price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;}
-  .hero-slide-info .price-row .price{font-size:22px;}
-  .hero-slide-info .price-row .old{color:#8a8a8a;text-decoration:line-through;font-size:14px;}
+  .hero-slide img{max-width:78%;max-height:82%;object-fit:contain;filter:drop-shadow(0 10px 26px rgba(0,0,0,.55));}
+  .hero-slide-caption{
+    position:absolute;inset-inline:0;bottom:0;direction:rtl;color:#fff;
+    padding:54px 26px 20px;
+    background:linear-gradient(to top, rgba(0,0,0,.88) 10%, rgba(0,0,0,.35) 60%, transparent);
+  }
+  .hero-slide-caption .tag{display:inline-block;background:var(--copper);color:#0a0a0a;font-size:11px;font-weight:800;padding:3px 10px;border-radius:99px;margin-bottom:8px;}
+  .hero-slide-caption h1{font-size:21px;line-height:1.3;margin:0 0 8px;color:#fff;}
+  .hero-slide-caption .price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;}
+  .hero-slide-caption .price-row .price{font-size:19px;}
+  .hero-slide-caption .price-row .old{color:#bbb;text-decoration:line-through;font-size:13px;}
   .hero-arrow{
     position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;
     background:rgba(0,0,0,.55);color:#fff;border:1px solid rgba(255,255,255,.22);font-size:20px;z-index:3;
@@ -107,8 +111,8 @@
   .hero-arrow:hover{background:rgba(0,0,0,.8);}
   .hero-arrow.prev{right:14px;}
   .hero-arrow.next{left:14px;}
-  .hero-dots{position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:3;}
-  .hero-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.35);cursor:pointer;}
+  .hero-dots{position:absolute;top:14px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:3;}
+  .hero-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4);cursor:pointer;}
   .hero-dot.on{background:var(--copper);width:18px;border-radius:99px;}
   .hero-mini-stats{display:flex;gap:26px;padding:18px 8px 30px;border-bottom:1px solid var(--line);margin-bottom:36px;}
   .hero-mini-stats .stat b{display:block;font-family:'Almarai',sans-serif;font-size:26px;color:var(--copper);}
@@ -277,11 +281,11 @@
   /* ---------- سلايدر المنتجات الجديدة ---------- */
   .new-slider-wrap{margin-bottom:34px;}
   .new-slider{display:flex;gap:14px;overflow:hidden;padding:4px 2px 14px;}
-  .new-slider-track{display:flex;gap:14px;width:max-content;animation:zaroSlideLoop 26s linear infinite;}
+  .new-slider-track{display:flex;gap:14px;width:max-content;animation:zaroSlideLoop 26s linear infinite;--reps:2;}
   .new-slider-wrap:hover .new-slider-track{animation-play-state:paused;}
   @keyframes zaroSlideLoop{
     from{transform:translateX(0);}
-    to{transform:translateX(-50%);}
+    to{transform:translateX(calc(-100% / var(--reps, 2)));}
   }
   .new-slide{flex:0 0 190px;background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;}
   .new-slide .thumb{aspect-ratio:3/4;background:linear-gradient(135deg,#232323,#121212);overflow:hidden;position:relative;}
@@ -328,10 +332,8 @@
   .img-preview-item button{position:absolute;top:-7px;left:-7px;background:var(--rose);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;line-height:1;padding:0;}
 
   @media (max-width:760px){
-    .hero-slide{flex-direction:column;padding:16px;gap:10px;text-align:center;}
     .hero-slides{aspect-ratio:3/4;}
-    .hero-slide-img{flex:0 0 58%;width:100%;}
-    .hero-slide-info h1{font-size:19px;}
+    .hero-slide-caption h1{font-size:17px;}
     .hero-mini-stats{gap:18px;padding:14px 8px 22px;}
     nav.links{gap:2px;}
     nav.links button{padding:7px 10px;font-size:13px;}
@@ -419,7 +421,9 @@ const FIREBASE_CONFIG = {
   <!-- ================= المتجر ================= -->
   <section class="view active" id="view-store">
     <div class="hero-slider" id="heroSlider" style="display:none">
-      <div class="hero-slides" id="heroSlides"></div>
+      <div class="hero-slides">
+        <div class="hero-track" id="heroTrack"></div>
+      </div>
       <button type="button" class="hero-arrow prev" onclick="heroStep(-1)" aria-label="السابق">›</button>
       <button type="button" class="hero-arrow next" onclick="heroStep(1)" aria-label="التالي">‹</button>
       <div class="hero-dots" id="heroDots"></div>
@@ -1313,29 +1317,30 @@ function productImages(p){
   return imgs;
 }
 /* ============================================================
-   السلايدر الرئيسي الكبير (منتج واحد في المرة مع أسهم)
+   السلايدر الرئيسي الكبير (سحب متحرك يمين/يسار — نظام المواقع الإخبارية)
    ============================================================ */
 let heroIndex = 0;
 let heroTimer = null;
+let heroList = [];
 function heroSlideProducts(){
   return [...products].sort((a,b)=>productRecencyScore(b)-productRecencyScore(a)).slice(0,8);
 }
 function renderHeroSlider(){
   const wrap = document.getElementById('heroSlider');
-  const slidesEl = document.getElementById('heroSlides');
+  const trackEl = document.getElementById('heroTrack');
   const dotsEl = document.getElementById('heroDots');
-  if(!wrap||!slidesEl) return;
-  const list = heroSlideProducts();
-  if(!list.length){ wrap.style.display='none'; clearInterval(heroTimer); return; }
+  if(!wrap||!trackEl) return;
+  heroList = heroSlideProducts();
+  if(!heroList.length){ wrap.style.display='none'; clearInterval(heroTimer); return; }
   wrap.style.display='block';
-  if(heroIndex>=list.length) heroIndex = 0;
-  slidesEl.innerHTML = list.map((p,i)=>{
+  if(heroIndex>=heroList.length) heroIndex = 0;
+  trackEl.innerHTML = heroList.map(p=>{
     const thumb = productImages(p)[0];
     const hasDiscount = p.compareAtPrice && p.compareAtPrice > p.price;
     return `
-    <div class="hero-slide ${i===heroIndex?'on':''}" onclick="openProductDetail('${p.id}')">
-      <div class="hero-slide-img">${thumb? `<img src="${esc(thumb)}">` : ''}</div>
-      <div class="hero-slide-info">
+    <div class="hero-slide" onclick="openProductDetail('${p.id}')">
+      ${thumb? `<img src="${esc(thumb)}">` : ''}
+      <div class="hero-slide-caption">
         <span class="tag">عروض حصرية</span>
         <h1>${esc(p.name)}</h1>
         <div class="price-row">
@@ -1347,17 +1352,35 @@ function renderHeroSlider(){
     </div>`;
   }).join('');
   if(dotsEl){
-    dotsEl.innerHTML = list.map((_,i)=>`<span class="hero-dot ${i===heroIndex?'on':''}" onclick="event.stopPropagation();heroGoto(${i})"></span>`).join('');
+    dotsEl.innerHTML = heroList.map((_,i)=>`<span class="hero-dot" onclick="event.stopPropagation();heroGoto(${i})"></span>`).join('');
   }
-  restartHeroTimer(list.length);
+  applyHeroPosition(false);
+  restartHeroTimer(heroList.length);
+}
+function applyHeroPosition(animate){
+  const trackEl = document.getElementById('heroTrack');
+  if(!trackEl) return;
+  if(animate===false){
+    trackEl.style.transition = 'none';
+    trackEl.style.transform = `translateX(${-heroIndex*100}%)`;
+    void trackEl.offsetWidth; /* إجبار المتصفح يطبق القيمة فورًا قبل ما نرجّع الحركة */
+    trackEl.style.transition = '';
+  } else {
+    trackEl.style.transform = `translateX(${-heroIndex*100}%)`;
+  }
+  document.querySelectorAll('#heroDots .hero-dot').forEach((d,i)=>d.classList.toggle('on', i===heroIndex));
 }
 function heroStep(delta){
-  const list = heroSlideProducts();
-  if(!list.length) return;
-  heroIndex = (heroIndex + delta + list.length) % list.length;
-  renderHeroSlider();
+  if(!heroList.length) return;
+  heroIndex = (heroIndex + delta + heroList.length) % heroList.length;
+  applyHeroPosition(true);
+  restartHeroTimer(heroList.length);
 }
-function heroGoto(i){ heroIndex = i; renderHeroSlider(); }
+function heroGoto(i){
+  heroIndex = i;
+  applyHeroPosition(true);
+  restartHeroTimer(heroList.length);
+}
 function restartHeroTimer(count){
   clearInterval(heroTimer);
   if(count>1){
@@ -1395,9 +1418,13 @@ function renderNewArrivalsSlider(){
       </div>
     </div>`;
   }).join('');
-  /* بنكرر المحتوى مرتين عشان يبقى فيه حلقة متحركة متصلة بدون أي وقفة أو انتظار */
-  el.innerHTML = slideHtml + slideHtml;
-  el.style.animationDuration = Math.max(14, latest.length*4) + 's';
+  /* بنكرر المحتوى بعدد كافٍ عشان يملأ عرض الشاشة دايمًا حتى لو عدد المنتجات قليل،
+     وبكده الحلقة تبقى متصلة تمامًا من غير أي فراغ أو وقفة انتظار */
+  const minCardsForSeamlessLoop = 14;
+  const repeatCount = Math.max(2, Math.ceil(minCardsForSeamlessLoop / latest.length));
+  el.innerHTML = slideHtml.repeat(repeatCount);
+  el.style.setProperty('--reps', repeatCount);
+  el.style.animationDuration = Math.max(16, latest.length * repeatCount * 2.2) + 's';
 }
 
 /* ============================================================
