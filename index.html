@@ -230,6 +230,7 @@
   .stage-badge.st-contacting{background:rgba(60,140,220,.18);color:#7fbef2;border-color:rgba(60,140,220,.4);}
   .stage-badge.st-confirmed{background:rgba(46,170,150,.18);color:#7fe0c8;border-color:rgba(46,170,150,.4);}
   .stage-badge.st-preparing{background:rgba(227,177,0,.18);color:#e3b100;border-color:rgba(227,177,0,.4);}
+  .stage-badge.st-ready_ship{background:rgba(150,100,230,.12);color:#c3a6f5;border-color:rgba(150,100,230,.3);}
   .stage-badge.st-shipped{background:rgba(150,100,230,.18);color:#c3a6f5;border-color:rgba(150,100,230,.4);}
   .stage-badge.st-delivered{background:rgba(60,180,140,.18);color:#8fe6c4;border-color:rgba(60,180,140,.4);}
   .stage-badge.st-accounts{background:rgba(230,140,40,.18);color:#f5b877;border-color:rgba(230,140,40,.4);}
@@ -517,13 +518,15 @@ const FIREBASE_CONFIG = {
     <div class="dash">
       <div class="dash-tabs">
         <button class="active" data-tab="new" onclick="teamTab('new')">طلبات جديدة</button>
-        <button data-tab="mine" onclick="teamTab('mine')">طلباتي الجارية</button>
+        <button data-tab="contact" onclick="teamTab('contact')">التواصل</button>
+        <button data-tab="sales" onclick="teamTab('sales')">المبيعات</button>
+        <button data-tab="shipping" onclick="teamTab('shipping')">الشحن</button>
+        <button data-tab="accounts" onclick="teamTab('accounts')">الحسابات</button>
         <button data-tab="all" onclick="teamTab('all')">كل الطلبات</button>
         <button data-tab="customers" onclick="teamTab('customers')">العملاء</button>
         <button data-tab="products" onclick="teamTab('products')">المنتجات</button>
         <button data-tab="purchases" onclick="teamTab('purchases')">المخزن</button>
-        <button data-tab="sales" onclick="teamTab('sales')">المبيعات</button>
-        <button data-tab="accounts" onclick="teamTab('accounts')">الحسابات</button>
+        <button data-tab="salesReport" onclick="teamTab('salesReport')">تقرير المبيعات</button>
       </div>
       <div class="dash-inner">
         <div id="team-tab-all" style="display:none">
@@ -536,24 +539,50 @@ const FIREBASE_CONFIG = {
             <select id="teamAllFilterCategory" onchange="renderTeamAllOrders()">
               <option value="">كل أنواع المنتجات</option>
             </select>
-            <input type="text" id="teamAllFilterEmployee" placeholder="فلترة باسم الموظف" oninput="renderTeamAllOrders()">
+            <select id="teamAllFilterEmployee" onchange="renderTeamAllOrders()">
+              <option value="">كل الموظفين</option>
+            </select>
           </div>
           <div class="table-wrap"><table class="data">
-            <thead><tr><th>رقم الطلب</th><th>المنتج</th><th>العميل</th><th>تصنيف العميل</th><th>موظف التواصل</th><th>موظف المبيعات</th><th>موظف الحسابات</th><th>المرحلة</th><th>تواصل</th><th>آخر تحديث</th></tr></thead>
+            <thead><tr><th>رقم الطلب</th><th>المنتج</th><th>العميل</th><th>تصنيف العميل</th><th>الموظف المستلم</th><th>القسم الحالي</th><th>المرحلة</th><th>تواصل</th><th>آخر تحديث</th></tr></thead>
             <tbody id="teamAllOrdersTable"></tbody>
           </table></div>
         </div>
+
+        <!-- ===== قسم: الطلبات الجديدة ===== -->
         <div id="team-tab-new">
-          <h2>طلبات في انتظار الاستلام</h2>
-          <div class="sub">أول عضو يضغط "استلام الطلب" هو المسؤول عن متابعته مع العميل.</div>
+          <h2>طلبات جديدة</h2>
+          <div class="sub">اختر اسمك من القايمة واضغط "استلام الطلب" — الطلب هيفضل باسمك لحد ما يتقفل.</div>
+          <div class="filters">
+            <select id="deptNewFilterCategory" onchange="renderDeptNew()"><option value="">كل أنواع المنتجات</option></select>
+          </div>
           <div id="teamNewOrders"></div>
           <div class="empty" id="teamNewEmpty" style="display:none;color:#8a8a8a">مفيش طلبات جديدة دلوقتي.</div>
         </div>
-        <div id="team-tab-mine" style="display:none">
-          <h2>طلباتي الجارية</h2>
-          <div class="sub">الطلبات اللي إنت مسؤول عنها حاليًا.</div>
-          <div id="teamMineOrders"></div>
-          <div class="empty" id="teamMineEmpty" style="display:none;color:#8a8a8a">مفيش طلبات مستلمة منك حاليًا.</div>
+
+        <!-- ===== قسم: التواصل ===== -->
+        <div id="team-tab-contact" style="display:none">
+          <h2>التواصل</h2>
+          <div class="sub">الطلبات اللي بانتظار تأكيد أو إلغاء مع العميل.</div>
+          <div class="filters">
+            <select id="deptContactFilterCategory" onchange="renderDeptContact()"><option value="">كل أنواع المنتجات</option></select>
+            <select id="deptContactFilterEmployee" onchange="renderDeptContact()"><option value="">كل الموظفين</option></select>
+          </div>
+          <div id="teamContactOrders"></div>
+          <div class="empty" id="teamContactEmpty" style="display:none;color:#8a8a8a">مفيش طلبات في التواصل دلوقتي.</div>
+        </div>
+
+        <!-- ===== قسم: الشحن ===== -->
+        <div id="team-tab-shipping" style="display:none">
+          <h2>الشحن</h2>
+          <div class="sub">الطلبات الجاهزة للشحن — اختر شركة الشحن وسلّمها.</div>
+          <div class="filters">
+            <select id="deptShippingFilterCategory" onchange="renderDeptShipping()"><option value="">كل أنواع المنتجات</option></select>
+            <select id="deptShippingFilterEmployee" onchange="renderDeptShipping()"><option value="">كل الموظفين</option></select>
+            <button type="button" class="btn btn-outline btn-sm" onclick="addShippingCompanyQuick()">+ إضافة شركة شحن</button>
+          </div>
+          <div id="teamShippingOrders"></div>
+          <div class="empty" id="teamShippingEmpty" style="display:none;color:#8a8a8a">مفيش طلبات في الشحن دلوقتي.</div>
         </div>
         <div id="team-tab-products" style="display:none">
           <div class="section-head" style="margin-bottom:14px">
@@ -636,8 +665,19 @@ const FIREBASE_CONFIG = {
             </table></div>
           </div>
         </div>
+        <!-- ===== قسم: المبيعات (تجهيز الطلبات المؤكدة) ===== -->
         <div id="team-tab-sales" style="display:none">
           <h2>المبيعات</h2>
+          <div class="sub">الطلبات المؤكدة من قسم التواصل، جهّزها ثم حوّلها لقسم الشحن.</div>
+          <div class="filters">
+            <select id="deptSalesFilterCategory" onchange="renderDeptSales()"><option value="">كل أنواع المنتجات</option></select>
+            <select id="deptSalesFilterEmployee" onchange="renderDeptSales()"><option value="">كل الموظفين</option></select>
+          </div>
+          <div id="teamSalesOrders"></div>
+          <div class="empty" id="teamSalesEmpty" style="display:none;color:#8a8a8a">مفيش طلبات في المبيعات دلوقتي.</div>
+        </div>
+        <div id="team-tab-salesReport" style="display:none">
+          <h2>تقرير المبيعات</h2>
           <div class="sub">تقرير سريع لإجمالي المبيعات وأكثر الأصناف مبيعًا (من الطلبات المؤكدة فأعلى، بعد استبعاد المرتجع).</div>
           <div style="display:flex;gap:14px;flex-wrap:wrap;margin:16px 0 24px">
             <div class="team-panel" style="flex:1;min-width:160px;text-align:center">
@@ -706,6 +746,9 @@ const FIREBASE_CONFIG = {
             <select id="accountsCompanyFilter" onchange="renderAccountsTab()">
               <option value="">كل شركات الشحن</option>
             </select>
+            <select id="deptAccountsFilterEmployee" onchange="renderAccountsTab()">
+              <option value="">كل الموظفين</option>
+            </select>
           </div>
           <h3 style="color:#fff;font-size:15px;margin:18px 0 10px">الرصيد لكل شركة شحن</h3>
           <div class="table-wrap"><table class="data">
@@ -714,7 +757,7 @@ const FIREBASE_CONFIG = {
           </table></div>
           <h3 style="color:#fff;font-size:15px;margin:22px 0 10px">الطلبات بانتظار التحصيل</h3>
           <div class="table-wrap"><table class="data">
-            <thead><tr><th>رقم الطلب</th><th>العميل</th><th>شركة الشحن</th><th>الإجمالي</th><th>آخر تحديث</th><th></th></tr></thead>
+            <thead><tr><th>رقم الطلب</th><th>العميل</th><th>الموظف المستلم</th><th>شركة الشحن</th><th>الإجمالي</th><th>آخر تحديث</th><th></th></tr></thead>
             <tbody id="accountsPendingTable"></tbody>
           </table></div>
         </div>
@@ -741,10 +784,12 @@ const FIREBASE_CONFIG = {
             <select id="filterCategory" onchange="renderAdminOrders()">
               <option value="">كل أنواع المنتجات</option>
             </select>
-            <input type="text" id="filterEmployee" placeholder="فلترة باسم الموظف" oninput="renderAdminOrders()">
+            <select id="filterEmployee" onchange="renderAdminOrders()">
+              <option value="">كل الموظفين</option>
+            </select>
           </div>
           <div class="table-wrap"><table class="data">
-            <thead><tr><th>رقم الطلب</th><th>المنتج</th><th>العميل</th><th>تصنيف العميل</th><th>موظف التواصل</th><th>موظف المبيعات</th><th>موظف الحسابات</th><th>الحالة</th><th>تواصل</th><th>إرجاع لمرحلة</th><th>آخر تحديث</th></tr></thead>
+            <thead><tr><th>رقم الطلب</th><th>المنتج</th><th>العميل</th><th>تصنيف العميل</th><th>الموظف المستلم</th><th>القسم الحالي</th><th>الحالة</th><th>تواصل</th><th>إرجاع لمرحلة</th><th>آخر تحديث</th></tr></thead>
             <tbody id="adminOrdersTable"></tbody>
           </table></div>
         </div>
@@ -756,6 +801,14 @@ const FIREBASE_CONFIG = {
           </div>
           <div class="team-panel">
             <div id="rolesList"></div>
+          </div>
+          <div class="section-head" style="margin:26px 0 14px">
+            <h2 style="color:#fff">أسماء موظفي استلام الطلبات</h2>
+            <button class="btn btn-copper btn-sm" onclick="addEmployeeQuick()">+ إضافة اسم موظف</button>
+          </div>
+          <div class="sub">دول الأسماء اللي هتظهر في اختيار "استلام الطلب" بقسم الطلبات الجديدة، وفي فلاتر الموظفين بكل قسم.</div>
+          <div class="team-panel">
+            <div id="employeesList"></div>
           </div>
         </div>
 
@@ -1014,6 +1067,7 @@ const STAGES = [
   {key:'contacting',  label:'التواصل مع العميل'},
   {key:'confirmed',   label:'تأكيد الطلب'},
   {key:'preparing',   label:'تجهيز الطلب (المبيعات)'},
+  {key:'ready_ship',  label:'جاهز للشحن'},
   {key:'shipped',     label:'مع شركة الشحن'},
   {key:'delivered',   label:'تم التسليم للعميل'},
   {key:'accounts',    label:'عند الحسابات (تحصيل المبلغ)'},
@@ -1024,6 +1078,19 @@ const stageLabel = k => (STAGES.find(s=>s.key===k)||{}).label || k;
 const stageIndex = k => STAGES.findIndex(s=>s.key===k);
 function stageBadgeHtml(status){
   return `<span class="stage-badge st-${status||'new'}">${esc(stageLabel(status))}</span>`;
+}
+
+/* أقسام لوحة الفريق — كل قسم بيمثل مرحلة (أو أكتر) من مراحل الطلب */
+const DEPARTMENTS = [
+  {key:'new',      label:'الطلبات الجديدة', statuses:['new']},
+  {key:'contact',  label:'التواصل',         statuses:['contacting']},
+  {key:'sales',    label:'المبيعات',        statuses:['confirmed','preparing']},
+  {key:'shipping', label:'الشحن',           statuses:['ready_ship','shipped']},
+  {key:'accounts', label:'الحسابات',        statuses:['accounts']},
+];
+function deptForStatus(status){
+  const d = DEPARTMENTS.find(d=>d.statuses.includes(status));
+  return d ? d.label : (stageLabel(status));
 }
 
 let currentUser = null;   // firebase auth user
@@ -1242,6 +1309,8 @@ function refreshRoleBoundListeners(){
   if(unsubRoles){unsubRoles();unsubRoles=null;}
   if(unsubSuppliers){unsubSuppliers();unsubSuppliers=null;}
   if(unsubCustomers){unsubCustomers();unsubCustomers=null;}
+  if(unsubShippingCompanies){unsubShippingCompanies();unsubShippingCompanies=null;}
+  if(unsubEmployees){unsubEmployees();unsubEmployees=null;}
 
   if(currentRole==='team' || currentRole==='admin'){
     listenTeamOrders();
@@ -1249,6 +1318,7 @@ function refreshRoleBoundListeners(){
     listenPurchases();
     listenSuppliers();
     listenShippingCompanies();
+    listenEmployees();
   }
   if(currentRole==='admin'){
     listenAdminOrders();
@@ -1372,24 +1442,12 @@ function listenItemTypes(){
     renderPGenderSelect();
     renderStoreFilters();
     renderPurchaseGenderSelect();
-    renderCategoryFilterSelects();
+    refreshCategoryFilterSelects();
     renderTeamAllOrders();
     renderAdminOrders();
     renderItemTypesGenderSelect();
     renderItemTypesTable();
-  });
-}
-/* فلاتر "نوع المنتج" في جداول الطلبات — بتتبنى تاني في كل مرة الأصناف تتحدث، عشان متفضلش فاضية لو الطلبات اتعرضت الأول */
-function renderCategoryFilterSelects(){
-  const opts = '<option value="">كل الأصناف</option>' + Object.entries(GENDER_LABELS)
-    .map(([gk,gl])=>`<optgroup label="${gl}">${itemTypesForGender(gk).map(t=>`<option value="${t.id}">${esc(t.label)}</option>`).join('')}</optgroup>`).join('');
-  ['teamAllFilterCategory','filterCategory'].forEach(id=>{
-    const sel = document.getElementById(id);
-    if(!sel) return;
-    const current = sel.value;
-    sel.innerHTML = opts;
-    if(sel.querySelector(`option[value="${CSS.escape(current)}"]`)) sel.value = current;
-  });
+  }, err=>console.error('listenItemTypes', err));
 }
 function itemTypeLabel(id){
   const it = itemTypesCache.find(x=>x.id===id);
@@ -2001,11 +2059,12 @@ async function customerConfirm(orderId, status){
    لوحة الفريق
    ============================================================ */
 function teamTab(name){
-  ['new','mine','all','customers','products','purchases','sales','accounts'].forEach(t=>{
+  ['new','contact','sales','shipping','accounts','all','customers','products','purchases','salesReport'].forEach(t=>{
     document.getElementById('team-tab-'+t).style.display = (t===name)?'block':'none';
   });
   document.querySelectorAll('#view-team .dash-tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
   if(name==='accounts') renderAccountsTab();
+  if(name==='salesReport') renderSalesReport();
 }
 function warehouseTab(name){
   ['purchases','suppliers','items'].forEach(t=>{
@@ -2062,10 +2121,11 @@ function renderAccountsTab(){
   const pendingTbody = document.getElementById('accountsPendingTable');
   if(!debitEl || !companyTbody) return;
   const companyFilter = document.getElementById('accountsCompanyFilter')?.value || '';
+  const empFilter = document.getElementById('deptAccountsFilterEmployee')?.value || '';
 
   /* مدين: طلبات وصلت لشركة الشحن ولسه ما اتحصلتش (shipped/delivered/accounts) */
   const pendingStatuses = ['shipped','delivered','accounts'];
-  const pendingOrders = teamAllOrdersCache.filter(o=>pendingStatuses.includes(o.status) && (!companyFilter || o.shippingCompany===companyFilter));
+  const pendingOrders = teamAllOrdersCache.filter(o=>pendingStatuses.includes(o.status) && (!companyFilter || o.shippingCompany===companyFilter) && (!empFilter || (o.claimedByName||'')===empFilter));
   /* دائن: طلبات اتحصلت فعلًا (completed مع collectionStatus=collected) */
   const collectedOrders = teamAllOrdersCache.filter(o=>o.status==='completed' && o.collectionStatus==='collected' && (!companyFilter || o.shippingCompany===companyFilter));
 
@@ -2100,51 +2160,70 @@ function renderAccountsTab(){
     <tr>
       <td class="mono">#${o.id.slice(0,6)}</td>
       <td>${esc(o.customerName||'—')}</td>
+      <td>${esc(o.claimedByName||'—')}</td>
       <td>${esc(o.shippingCompany||'—')}</td>
       <td class="mono">${money(o.total)}</td>
       <td class="mono" style="font-size:11.5px">${fmtDate(o.updatedAt)}</td>
-      <td>${o.status==='accounts'? `<button class="btn btn-emerald btn-sm" onclick="markOrderCollected('${o.id}')">تم التحصيل ✓</button>` : stageBadgeHtml(o.status)}</td>
-    </tr>`).join('') || `<tr><td colspan="6" style="text-align:center;color:#8a8a8a;padding:20px">مفيش طلبات بانتظار التحصيل حاليًا</td></tr>`;
+      <td>${o.status==='accounts'? `
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-emerald btn-sm" onclick="markOrderCollected('${o.id}')">تم التحصيل ✓</button>
+          <button class="btn btn-outline btn-sm" onclick="returnOrderToStage('${o.id}','shipped')">رجوع للشحن</button>
+        </div>` : stageBadgeHtml(o.status)}</td>
+    </tr>`).join('') || `<tr><td colspan="7" style="text-align:center;color:#8a8a8a;padding:20px">مفيش طلبات بانتظار التحصيل حاليًا</td></tr>`;
 }
 
 function listenTeamOrders(){
-  unsubOrdersTeam = db.collection('orders').where('status','==','new')
-    .onSnapshot(snap=>{
-      const list = snap.docs.map(d=>({id:d.id,...d.data()}));
-      document.getElementById('teamNewEmpty').style.display = list.length? 'none':'block';
-      document.getElementById('teamNewOrders').innerHTML = list.map(o=>teamOrderCard(o,'new')).join('');
-    });
-  // طلباتي الجارية (لأي حالة غير النهائيات ومُستلمة مني)
-  db.collection('orders').where('claimedByEmail','==',(currentUser?.email||'').toLowerCase())
-    .onSnapshot(snap=>{
-      const list = snap.docs.map(d=>({id:d.id,...d.data()})).filter(o=>!['completed','returned','delivered'].includes(o.status) || o.status==='delivered');
-      const active = list.filter(o=>!['completed','returned'].includes(o.status));
-      document.getElementById('teamMineEmpty').style.display = active.length? 'none':'block';
-      document.getElementById('teamMineOrders').innerHTML = active.map(o=>teamOrderCard(o,'mine')).join('');
-    });
-  // كل الطلبات — ظاهرة لكل أعضاء الفريق
+  // كل الطلبات — ظاهرة لكل أعضاء الفريق، وبنبني منها كل قوائم الأقسام محليًا
   const selT = document.getElementById('teamAllFilterStatus');
   if(selT) selT.innerHTML = '<option value="">كل الحالات</option>' + STAGES.map(s=>`<option value="${s.key}">${s.label}</option>`).join('');
-  const selTCat = document.getElementById('teamAllFilterCategory');
-  if(selTCat) selTCat.innerHTML = '<option value="">كل الأصناف</option>' + Object.entries(GENDER_LABELS).map(([gk,gl])=>`<optgroup label="${gl}">${itemTypesForGender(gk).map(t=>`<option value="${t.id}">${esc(t.label)}</option>`).join('')}</optgroup>`).join('');
-  db.collection('orders').orderBy('createdAt','desc').onSnapshot(snap=>{
+  refreshCategoryFilterSelects();
+  refreshEmployeeFilterSelects();
+  unsubOrdersTeam = db.collection('orders').orderBy('createdAt','desc').onSnapshot(snap=>{
     teamAllOrdersCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     renderTeamAllOrders();
+    renderDeptNew();
+    renderDeptContact();
+    renderDeptSales();
+    renderDeptShipping();
     renderSalesReport();
     renderAccountsTab();
-  });
+  }, err=>console.error('listenTeamOrders', err));
 }
 let teamAllOrdersCache = [];
+
+/* فلاتر النوع + الموظف المشتركة بين كل تابات لوحة الفريق ولوحة الإدارة */
+function refreshCategoryFilterSelects(){
+  const opts = '<option value="">كل أنواع المنتجات</option>' + Object.entries(GENDER_LABELS)
+    .map(([gk,gl])=>`<optgroup label="${gl}">${itemTypesForGender(gk).map(t=>`<option value="${t.id}">${esc(t.label)}</option>`).join('')}</optgroup>`).join('');
+  ['teamAllFilterCategory','filterCategory','deptNewFilterCategory','deptContactFilterCategory','deptSalesFilterCategory','deptShippingFilterCategory'].forEach(id=>{
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    const current = sel.value;
+    sel.innerHTML = opts;
+    if(sel.querySelector(`option[value="${CSS.escape(current)}"]`)) sel.value = current;
+  });
+}
+function refreshEmployeeFilterSelects(){
+  const opts = '<option value="">كل الموظفين</option>' + employeesCache.map(e=>`<option value="${esc(e.name)}">${esc(e.name)}</option>`).join('');
+  ['teamAllFilterEmployee','filterEmployee','deptContactFilterEmployee','deptSalesFilterEmployee','deptShippingFilterEmployee','deptAccountsFilterEmployee'].forEach(id=>{
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    const current = sel.value;
+    sel.innerHTML = opts;
+    if(sel.querySelector(`option[value="${CSS.escape(current)}"]`)) sel.value = current;
+  });
+}
+
 function renderTeamAllOrders(){
   const tbody = document.getElementById('teamAllOrdersTable');
   if(!tbody) return;
   const statusF = document.getElementById('teamAllFilterStatus')?.value || '';
   const catF = document.getElementById('teamAllFilterCategory')?.value || '';
-  const empF = (document.getElementById('teamAllFilterEmployee')?.value || '').trim().toLowerCase();
+  const empF = document.getElementById('teamAllFilterEmployee')?.value || '';
   const list = teamAllOrdersCache.filter(o=>{
     if(statusF && o.status!==statusF) return false;
     if(catF && !(o.items||[]).some(i=>i.category===catF)) return false;
-    if(empF && !(o.claimedByName||'').toLowerCase().includes(empF)) return false;
+    if(empF && (o.claimedByName||'')!==empF) return false;
     return true;
   });
   tbody.innerHTML = list.map(o=>`
@@ -2154,33 +2233,118 @@ function renderTeamAllOrders(){
       <td>${esc(o.customerName)}<br><span style="color:#8a8a8a;font-size:11.5px">${esc(o.phone||'')}</span></td>
       <td>${customerTypeBadgeHtml(o.customerUid)}</td>
       <td>${esc(o.claimedByName||'—')}</td>
-      <td>${esc(o.salesByName||'—')}</td>
-      <td>${esc(o.accountsByName||'—')}</td>
+      <td>${esc(deptForStatus(o.status))}</td>
       <td>${stageBadgeHtml(o.status)}</td>
       <td>${contactBtnsHtml(o.phone)}</td>
       <td class="mono" style="font-size:11.5px">${fmtDate(o.updatedAt)}</td>
-    </tr>`).join('') || `<tr><td colspan="10" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد نتائج</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="9" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد نتائج</td></tr>`;
 }
 
-function teamOrderCard(o, mode){
+function ordersForDept(deptKey, catFilterId, empFilterId){
+  const dept = DEPARTMENTS.find(d=>d.key===deptKey);
+  const catF = catFilterId ? (document.getElementById(catFilterId)?.value || '') : '';
+  const empF = empFilterId ? (document.getElementById(empFilterId)?.value || '') : '';
+  return teamAllOrdersCache.filter(o=>{
+    if(!dept.statuses.includes(o.status)) return false;
+    if(catF && !(o.items||[]).some(i=>i.category===catF)) return false;
+    if(empF && (o.claimedByName||'')!==empF) return false;
+    return true;
+  });
+}
+
+/* ===== قسم: الطلبات الجديدة ===== */
+function renderDeptNew(){
+  const wrap = document.getElementById('teamNewOrders');
+  if(!wrap) return;
+  const list = ordersForDept('new','deptNewFilterCategory',null);
+  document.getElementById('teamNewEmpty').style.display = list.length? 'none':'block';
+  wrap.innerHTML = list.map(o=>teamOrderCard(o,'new')).join('');
+}
+/* ===== قسم: التواصل ===== */
+function renderDeptContact(){
+  const wrap = document.getElementById('teamContactOrders');
+  if(!wrap) return;
+  const list = ordersForDept('contact','deptContactFilterCategory','deptContactFilterEmployee');
+  document.getElementById('teamContactEmpty').style.display = list.length? 'none':'block';
+  wrap.innerHTML = list.map(o=>teamOrderCard(o,'contact')).join('');
+}
+/* ===== قسم: المبيعات ===== */
+function renderDeptSales(){
+  const wrap = document.getElementById('teamSalesOrders');
+  if(!wrap) return;
+  const list = ordersForDept('sales','deptSalesFilterCategory','deptSalesFilterEmployee');
+  document.getElementById('teamSalesEmpty').style.display = list.length? 'none':'block';
+  wrap.innerHTML = list.map(o=>teamOrderCard(o,'sales')).join('');
+}
+/* ===== قسم: الشحن ===== */
+function renderDeptShipping(){
+  const wrap = document.getElementById('teamShippingOrders');
+  if(!wrap) return;
+  const list = ordersForDept('shipping','deptShippingFilterCategory','deptShippingFilterEmployee');
+  document.getElementById('teamShippingEmpty').style.display = list.length? 'none':'block';
+  wrap.innerHTML = list.map(o=>teamOrderCard(o,'shipping')).join('');
+}
+
+/* رجوع لمرحلة سابقة مع كتابة ملاحظة سبب الرجوع */
+async function returnOrderToStage(orderId, toStatus){
+  const note = (prompt('سبب الرجوع (هيتسجل مع الطلب):')||'').trim();
+  if(!note){ toast('لازم تكتب سبب الرجوع'); return; }
+  await db.collection('orders').doc(orderId).update({
+    status: toStatus,
+    lastReturnNote: note,
+    returnHistory: firebase.firestore.FieldValue.arrayUnion({toStatus, note, byName: currentUser?.displayName||currentUser?.email||'', at: new Date().toISOString()}),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+  toast('تم إرجاع الطلب لمرحلة: '+stageLabel(toStatus));
+}
+async function cancelOrderWithNote(orderId){
+  const note = (prompt('سبب الإلغاء (هيتسجل مع الطلب):')||'').trim();
+  if(!note){ toast('لازم تكتب سبب الإلغاء'); return; }
+  await db.collection('orders').doc(orderId).update({
+    status:'returned',
+    lastReturnNote: note,
+    returnHistory: firebase.firestore.FieldValue.arrayUnion({toStatus:'returned', note, byName: currentUser?.displayName||currentUser?.email||'', at: new Date().toISOString()}),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+  toast('تم إلغاء الطلب');
+}
+
+function teamOrderCard(o, dept){
   let actions = '';
-  if(mode==='new'){
-    actions = `<button class="btn btn-copper btn-sm" onclick="claimOrder('${o.id}')">استلام الطلب</button>`;
-  } else {
-    if(o.status==='contacting'){
-      actions = `<button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','confirmed')">تم تأكيد الطلب مع العميل</button>`;
-    } else if(o.status==='confirmed'){
-      actions = `<button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','preparing')">بدء التجهيز (المبيعات)</button>`;
+  if(dept==='new'){
+    actions = `
+      <select id="recv-${o.id}">${employeeOptionsHtml('اختر اسمك')}</select>
+      <button class="btn btn-copper btn-sm" onclick="claimOrder('${o.id}')">استلام الطلب</button>`;
+  } else if(dept==='contact'){
+    actions = `
+      <button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','confirmed')">تأكيد الطلب</button>
+      <button class="btn btn-outline btn-sm" onclick="cancelOrderWithNote('${o.id}')">إلغاء الطلب</button>`;
+  } else if(dept==='sales'){
+    if(o.status==='confirmed'){
+      actions = `
+        <button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','preparing')">بدء التجهيز</button>
+        <button class="btn btn-outline btn-sm" onclick="returnOrderToStage('${o.id}','contacting')">رجوع للتواصل</button>`;
     } else if(o.status==='preparing'){
       actions = `
+        <button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','ready_ship')">تحويل لقسم الشحن</button>
+        <button class="btn btn-outline btn-sm" onclick="returnOrderToStage('${o.id}','contacting')">رجوع للتواصل</button>`;
+    }
+  } else if(dept==='shipping'){
+    if(o.status==='ready_ship'){
+      actions = `
         <select id="ship-${o.id}">${shippingCompanyOptionsHtml()}</select>
-        <button class="btn btn-emerald btn-sm" onclick="shipOrder('${o.id}')">تسليم لشركة الشحن</button>`;
+        <button class="btn btn-emerald btn-sm" onclick="shipOrder('${o.id}')">تسليم لشركة الشحن</button>
+        <button class="btn btn-outline btn-sm" onclick="returnOrderToStage('${o.id}','preparing')">رجوع للمبيعات</button>`;
     } else if(o.status==='shipped'){
-      actions = `<button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','delivered')">تم التسليم للعميل</button>`;
-    } else if(o.status==='delivered'){
-      actions = `<span class="stage-badge st-delivered">بانتظار تأكيد العميل</span>`;
-    } else if(o.status==='accounts'){
-      actions = `<button class="btn btn-emerald btn-sm" onclick="markOrderCollected('${o.id}')">تم تحصيل المبلغ من شركة الشحن ✓</button>`;
+      actions = `
+        <button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','delivered')">تم التسليم للعميل</button>
+        <button class="btn btn-outline btn-sm" onclick="returnOrderToStage('${o.id}','preparing')">رجوع للمبيعات</button>`;
+    }
+  } else if(dept==='accounts'){
+    if(o.status==='accounts'){
+      actions = `
+        <button class="btn btn-emerald btn-sm" onclick="markOrderCollected('${o.id}')">تم تحصيل المبلغ ✓</button>
+        <button class="btn btn-outline btn-sm" onclick="returnOrderToStage('${o.id}','shipped')">رجوع للشحن</button>`;
     }
   }
   return `
@@ -2194,6 +2358,8 @@ function teamOrderCard(o, mode){
             ${contactBtnsHtml(o.phone)}
           </div>
           <div class="meta">${esc(o.address)}</div>
+          ${o.claimedByName? `<div class="meta">استلمها: <b style="color:#fff">${esc(o.claimedByName)}</b></div>` : ''}
+          ${o.lastReturnNote? `<div class="meta" style="color:var(--rose)">آخر ملاحظة رجوع: ${esc(o.lastReturnNote)}</div>` : ''}
         </div>
         ${stageBadgeHtml(o.status)}
       </div>
@@ -2254,6 +2420,13 @@ async function loadCustomerPanel(orderId, uid){
 }
 
 async function claimOrder(orderId){
+  const sel = document.getElementById('recv-'+orderId);
+  let name = sel ? sel.value : '';
+  if(name==='__new__'){
+    name = await addEmployeeQuick();
+    if(!name){ toast('لازم تدخل اسم الموظف'); return; }
+  }
+  if(!name){ toast('اختر اسمك أولًا'); return; }
   const ref = db.collection('orders').doc(orderId);
   try{
     await db.runTransaction(async t=>{
@@ -2264,19 +2437,15 @@ async function claimOrder(orderId){
       t.update(ref, {
         status:'contacting',
         claimedByEmail:(currentUser.email||'').toLowerCase(),
-        claimedByName: currentUser.displayName||currentUser.email,
+        claimedByName: name,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
     });
-    toast('استلمت الطلب — ابدأ التواصل مع العميل');
+    toast('استلم الطلب: '+name+' — ابدأ التواصل مع العميل');
   }catch(err){ toast(err.message); }
 }
 async function advanceOrder(orderId, status){
   const patch = {status, updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-  if(status==='preparing'){
-    patch.salesByEmail = (currentUser.email||'').toLowerCase();
-    patch.salesByName = currentUser.displayName||currentUser.email;
-  }
   await db.collection('orders').doc(orderId).update(patch);
   toast('تم تحديث الطلب: '+stageLabel(status));
 }
@@ -2284,9 +2453,8 @@ async function shipOrder(orderId){
   const sel = document.getElementById('ship-'+orderId);
   let val = sel.value;
   if(val==='__new__'){
-    val = (prompt('اسم شركة الشحن الجديدة:')||'').trim();
+    val = await addShippingCompanyQuick();
     if(!val){ toast('لازم تدخل اسم شركة الشحن'); return; }
-    await db.collection('shippingCompanies').add({name: val, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
   }
   if(!val){ toast('اختر شركة الشحن'); return; }
   await db.collection('orders').doc(orderId).update({
@@ -2313,19 +2481,75 @@ async function markOrderCollected(orderId){
    شركات الشحن
    ============================================================ */
 let shippingCompaniesCache = [];
+let unsubShippingCompanies = null;
 function listenShippingCompanies(){
-  db.collection('shippingCompanies').orderBy('name').onSnapshot(snap=>{
+  if(unsubShippingCompanies) unsubShippingCompanies();
+  unsubShippingCompanies = db.collection('shippingCompanies').orderBy('name').onSnapshot(snap=>{
     shippingCompaniesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     renderAccountsCompanyFilter();
     renderAccountsTab();
     renderTeamAllOrders();
     renderAdminOrders();
-  });
+    /* لازم نعيد رسم قسم الشحن كل ما القايمة تتحدث، عشان قايمة الشركات في السلكت متفضلش فاضية لو الطلبات ظهرت قبل القايمة */
+    renderDeptShipping();
+  }, err=>console.error('listenShippingCompanies', err));
 }
 function shippingCompanyOptionsHtml(){
   return '<option value="">اختر شركة الشحن</option>' +
     shippingCompaniesCache.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('') +
     '<option value="__new__">+ شركة شحن جديدة…</option>';
+}
+async function addShippingCompanyQuick(){
+  const val = (prompt('اسم شركة الشحن الجديدة:')||'').trim();
+  if(!val) return null;
+  const exists = shippingCompaniesCache.find(c=>c.name.trim().toLowerCase()===val.toLowerCase());
+  if(exists){ toast('الشركة دي مسجّلة بالفعل'); return exists.name; }
+  await db.collection('shippingCompanies').add({name: val, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+  toast('تمت إضافة شركة الشحن');
+  return val;
+}
+
+/* ============================================================
+   أسماء موظفي استلام الطلبات (مستقلة عن حسابات الجيميل، لأن أكتر من
+   موظف بيستلم الطلبات من نفس الحساب، والطلب لازم يفضل باسم اللي استلمه)
+   ============================================================ */
+let employeesCache = [];
+let unsubEmployees = null;
+function listenEmployees(){
+  if(unsubEmployees) unsubEmployees();
+  unsubEmployees = db.collection('employees').orderBy('name').onSnapshot(snap=>{
+    employeesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderEmployeesList();
+    refreshEmployeeFilterSelects();
+    renderDeptNew();
+  }, err=>console.error('listenEmployees', err));
+}
+function employeeOptionsHtml(placeholder){
+  return `<option value="">${esc(placeholder||'اختر اسم الموظف')}</option>` +
+    employeesCache.map(e=>`<option value="${esc(e.name)}">${esc(e.name)}</option>`).join('') +
+    '<option value="__new__">+ إضافة اسم جديد…</option>';
+}
+async function addEmployeeQuick(){
+  const val = (prompt('اسم الموظف (الاسم الأول بالعربي):')||'').trim();
+  if(!val) return null;
+  const exists = employeesCache.find(e=>e.name.trim().toLowerCase()===val.toLowerCase());
+  if(exists){ toast('الاسم ده موجود بالفعل'); return exists.name; }
+  await db.collection('employees').add({name: val, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+  toast('تمت إضافة الموظف');
+  return val;
+}
+function renderEmployeesList(){
+  const wrap = document.getElementById('employeesList');
+  if(!wrap) return;
+  wrap.innerHTML = employeesCache.map(e=>`
+    <div class="role-row">
+      <span style="color:#fff;font-weight:700">${esc(e.name)}</span>
+      <button class="btn btn-outline btn-sm" onclick="removeEmployee('${e.id}')">إزالة</button>
+    </div>`).join('') || `<div style="color:#8a8a8a;font-size:13px">لسه مفيش موظفين مضافين.</div>`;
+}
+async function removeEmployee(id){
+  if(!confirm('إزالة هذا الموظف من القايمة؟')) return;
+  await db.collection('employees').doc(id).delete();
 }
 
 function renderTeamProducts(){
@@ -2652,21 +2876,21 @@ let allOrdersCache = [];
 function listenAdminOrders(){
   const sel = document.getElementById('filterStatus');
   sel.innerHTML = '<option value="">كل الحالات</option>' + STAGES.map(s=>`<option value="${s.key}">${s.label}</option>`).join('');
-  const selCat = document.getElementById('filterCategory');
-  if(selCat) selCat.innerHTML = '<option value="">كل الأصناف</option>' + Object.entries(GENDER_LABELS).map(([gk,gl])=>`<optgroup label="${gl}">${itemTypesForGender(gk).map(t=>`<option value="${t.id}">${esc(t.label)}</option>`).join('')}</optgroup>`).join('');
+  refreshCategoryFilterSelects();
+  refreshEmployeeFilterSelects();
   unsubOrdersAdmin = db.collection('orders').orderBy('createdAt','desc').onSnapshot(snap=>{
     allOrdersCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     renderAdminOrders();
-  });
+  }, err=>console.error('listenAdminOrders', err));
 }
 function renderAdminOrders(){
   const statusF = document.getElementById('filterStatus')?.value || '';
   const catF = document.getElementById('filterCategory')?.value || '';
-  const empF = (document.getElementById('filterEmployee')?.value || '').trim().toLowerCase();
+  const empF = document.getElementById('filterEmployee')?.value || '';
   const list = allOrdersCache.filter(o=>{
     if(statusF && o.status!==statusF) return false;
     if(catF && !(o.items||[]).some(i=>i.category===catF)) return false;
-    if(empF && !(o.claimedByName||'').toLowerCase().includes(empF)) return false;
+    if(empF && (o.claimedByName||'')!==empF) return false;
     return true;
   });
   document.getElementById('adminOrdersTable').innerHTML = list.map(o=>`
@@ -2676,8 +2900,7 @@ function renderAdminOrders(){
       <td>${esc(o.customerName)}<br><span style="color:#8a8a8a;font-size:11.5px">${esc(o.customerEmail||'')}</span><br><span style="color:#8a8a8a;font-size:11.5px">${esc(o.phone||'')}</span></td>
       <td>${customerTypeBadgeHtml(o.customerUid)}</td>
       <td>${esc(o.claimedByName||'—')}</td>
-      <td>${esc(o.salesByName||'—')}</td>
-      <td>${esc(o.accountsByName||'—')}</td>
+      <td>${esc(deptForStatus(o.status))}</td>
       <td>${stageBadgeHtml(o.status)}</td>
       <td>${contactBtnsHtml(o.phone)}</td>
       <td>
@@ -2689,7 +2912,7 @@ function renderAdminOrders(){
         </div>
       </td>
       <td class="mono" style="font-size:11.5px">${fmtDate(o.updatedAt)}</td>
-    </tr>`).join('') || `<tr><td colspan="11" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد نتائج</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="10" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد نتائج</td></tr>`;
 }
 async function adminSetOrderStatus(orderId){
   const sel = document.getElementById('revert-'+orderId);
@@ -2915,6 +3138,7 @@ async function submitSupplierItem(e){
 
 /* أول تحميل */
 renderCart();
+renderStoreFilters(); /* اظهار تابات النوع (رجالي/حريمي/أطفال) فورًا من ثابت GENDER_LABELS، من غير ما تنتظر تحميل الأصناف من فايرستور */
 go('store');
 </script>
 </body>
