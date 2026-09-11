@@ -14,6 +14,12 @@
 <link rel="apple-touch-icon" href="zaro-logo.png">
 <link rel="icon" href="zaro-logo.png">
 
+<!-- Open Graph (مؤقت — صورة عامة لحد ما يتعمل حل ديناميكي عبر Cloud Function يعرض صورة كل منتج وقت المشاركة) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="ZARO — متجر إلكتروني">
+<meta property="og:description" content="تسوق أحدث المنتجات مع توصيل لمعظم المحافظات والدفع عند الاستلام">
+<meta property="og:image" content="zaro-share-banner.jpg">
+
 <!-- Firebase (compat build — لا يحتاج أدوات بناء) -->
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
@@ -533,7 +539,7 @@ const FIREBASE_CONFIG = {
             <input type="text" id="teamAllFilterEmployee" placeholder="فلترة باسم الموظف" oninput="renderTeamAllOrders()">
           </div>
           <div class="table-wrap"><table class="data">
-            <thead><tr><th>رقم الطلب</th><th>المنتج</th><th>العميل</th><th>تصنيف العميل</th><th>الموظف المسؤول</th><th>المرحلة</th><th>تواصل</th><th>آخر تحديث</th></tr></thead>
+            <thead><tr><th>رقم الطلب</th><th>المنتج</th><th>العميل</th><th>تصنيف العميل</th><th>موظف التواصل</th><th>موظف المبيعات</th><th>موظف الحسابات</th><th>المرحلة</th><th>تواصل</th><th>آخر تحديث</th></tr></thead>
             <tbody id="teamAllOrdersTable"></tbody>
           </table></div>
         </div>
@@ -738,7 +744,7 @@ const FIREBASE_CONFIG = {
             <input type="text" id="filterEmployee" placeholder="فلترة باسم الموظف" oninput="renderAdminOrders()">
           </div>
           <div class="table-wrap"><table class="data">
-            <thead><tr><th>رقم الطلب</th><th>المنتج</th><th>العميل</th><th>تصنيف العميل</th><th>الموظف المسؤول</th><th>الحالة</th><th>تواصل</th><th>إرجاع لمرحلة</th><th>آخر تحديث</th></tr></thead>
+            <thead><tr><th>رقم الطلب</th><th>المنتج</th><th>العميل</th><th>تصنيف العميل</th><th>موظف التواصل</th><th>موظف المبيعات</th><th>موظف الحسابات</th><th>الحالة</th><th>تواصل</th><th>إرجاع لمرحلة</th><th>آخر تحديث</th></tr></thead>
             <tbody id="adminOrdersTable"></tbody>
           </table></div>
         </div>
@@ -1366,10 +1372,23 @@ function listenItemTypes(){
     renderPGenderSelect();
     renderStoreFilters();
     renderPurchaseGenderSelect();
+    renderCategoryFilterSelects();
     renderTeamAllOrders();
     renderAdminOrders();
     renderItemTypesGenderSelect();
     renderItemTypesTable();
+  });
+}
+/* فلاتر "نوع المنتج" في جداول الطلبات — بتتبنى تاني في كل مرة الأصناف تتحدث، عشان متفضلش فاضية لو الطلبات اتعرضت الأول */
+function renderCategoryFilterSelects(){
+  const opts = '<option value="">كل الأصناف</option>' + Object.entries(GENDER_LABELS)
+    .map(([gk,gl])=>`<optgroup label="${gl}">${itemTypesForGender(gk).map(t=>`<option value="${t.id}">${esc(t.label)}</option>`).join('')}</optgroup>`).join('');
+  ['teamAllFilterCategory','filterCategory'].forEach(id=>{
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    const current = sel.value;
+    sel.innerHTML = opts;
+    if(sel.querySelector(`option[value="${CSS.escape(current)}"]`)) sel.value = current;
   });
 }
 function itemTypeLabel(id){
@@ -1731,9 +1750,6 @@ function renderProductDetail(p){
       ${hasDiscount? `<span class="old-price" style="font-size:16px">${money(p.compareAtPrice)}</span>` : ''}
       <span class="price" style="font-size:22px">${money(p.price)}</span>
     </div>
-    <button type="button" class="btn btn-block" style="margin-bottom:10px;background:#1877F2;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px" onclick="shareProductOnFacebook('${p.id}')">
-      <span style="font-size:16px">📘</span> مشاركة المنتج على فيسبوك
-    </button>
     ${p.stock>0 ? '' : '<div class="stock-tag">غير متوفر حاليًا</div>'}
 
     <div class="pd-tabs" style="display:flex;gap:6px;margin:16px 0 10px;border-bottom:1px solid var(--line-dark)">
@@ -1762,6 +1778,7 @@ function renderProductDetail(p){
     </table>` : ''}
     <div style="display:flex;gap:8px;margin:14px 0;flex-wrap:wrap">
       <button class="btn btn-copper" ${p.stock>0?'':'disabled style="opacity:.5"'} onclick="closeModal('productDetailModalWrap');openOrderOptions('${p.id}')">اطلب الآن</button>
+      <button type="button" class="btn" style="background:#1877F2;color:#fff" onclick="shareProductOnFacebook('${p.id}')">📘 مشاركة</button>
       <a class="btn btn-outline" href="https://wa.me/201152155717?text=${encodeURIComponent('استفسار عن منتج: '+p.name)}" target="_blank" rel="noopener">تواصل واتساب</a>
     </div>
 
@@ -2137,10 +2154,12 @@ function renderTeamAllOrders(){
       <td>${esc(o.customerName)}<br><span style="color:#8a8a8a;font-size:11.5px">${esc(o.phone||'')}</span></td>
       <td>${customerTypeBadgeHtml(o.customerUid)}</td>
       <td>${esc(o.claimedByName||'—')}</td>
+      <td>${esc(o.salesByName||'—')}</td>
+      <td>${esc(o.accountsByName||'—')}</td>
       <td>${stageBadgeHtml(o.status)}</td>
       <td>${contactBtnsHtml(o.phone)}</td>
       <td class="mono" style="font-size:11.5px">${fmtDate(o.updatedAt)}</td>
-    </tr>`).join('') || `<tr><td colspan="8" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد نتائج</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="10" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد نتائج</td></tr>`;
 }
 
 function teamOrderCard(o, mode){
@@ -2253,7 +2272,12 @@ async function claimOrder(orderId){
   }catch(err){ toast(err.message); }
 }
 async function advanceOrder(orderId, status){
-  await db.collection('orders').doc(orderId).update({status, updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  const patch = {status, updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(status==='preparing'){
+    patch.salesByEmail = (currentUser.email||'').toLowerCase();
+    patch.salesByName = currentUser.displayName||currentUser.email;
+  }
+  await db.collection('orders').doc(orderId).update(patch);
   toast('تم تحديث الطلب: '+stageLabel(status));
 }
 async function shipOrder(orderId){
@@ -2278,6 +2302,8 @@ async function markOrderCollected(orderId){
     collectionStatus:'collected',
     collectedAmount: o? (o.total||0) : null,
     collectedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    accountsByEmail: (currentUser.email||'').toLowerCase(),
+    accountsByName: currentUser.displayName||currentUser.email,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
   });
   toast('تم إغلاق الطلب بعد التحصيل ✓');
@@ -2292,6 +2318,8 @@ function listenShippingCompanies(){
     shippingCompaniesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     renderAccountsCompanyFilter();
     renderAccountsTab();
+    renderTeamAllOrders();
+    renderAdminOrders();
   });
 }
 function shippingCompanyOptionsHtml(){
@@ -2648,6 +2676,8 @@ function renderAdminOrders(){
       <td>${esc(o.customerName)}<br><span style="color:#8a8a8a;font-size:11.5px">${esc(o.customerEmail||'')}</span><br><span style="color:#8a8a8a;font-size:11.5px">${esc(o.phone||'')}</span></td>
       <td>${customerTypeBadgeHtml(o.customerUid)}</td>
       <td>${esc(o.claimedByName||'—')}</td>
+      <td>${esc(o.salesByName||'—')}</td>
+      <td>${esc(o.accountsByName||'—')}</td>
       <td>${stageBadgeHtml(o.status)}</td>
       <td>${contactBtnsHtml(o.phone)}</td>
       <td>
@@ -2659,7 +2689,7 @@ function renderAdminOrders(){
         </div>
       </td>
       <td class="mono" style="font-size:11.5px">${fmtDate(o.updatedAt)}</td>
-    </tr>`).join('') || `<tr><td colspan="9" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد نتائج</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="11" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد نتائج</td></tr>`;
 }
 async function adminSetOrderStatus(orderId){
   const sel = document.getElementById('revert-'+orderId);
