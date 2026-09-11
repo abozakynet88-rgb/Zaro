@@ -127,6 +127,17 @@
   .cat-chip:hover{background:rgba(255,255,255,.06);}
   .cat-chip.active{background:var(--copper);color:#0a0a0a;border-color:var(--copper);font-weight:700;}
 
+  /* فلتر النوع الاحترافي (رجالي/حريمي/أطفال) أعلى المتجر */
+  .gender-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .gender-tab{
+    flex:1;min-width:90px;text-align:center;background:var(--ink-2);border:1px solid var(--line-dark);
+    color:#c8c8c8;padding:10px 14px;border-radius:10px;font-size:13.5px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s;
+  }
+  .gender-tab:hover{border-color:var(--copper);color:#fff;}
+  .gender-tab.active{background:var(--copper);color:#0a0a0a;border-color:var(--copper);}
+  .gender-tab .ic{font-size:15px;}
+
   .grid-products{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;}
   .p-card{
     background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;
@@ -208,6 +219,16 @@
   }
   .stage-badge.done{background:rgba(44,124,106,.2);color:#7fd4bd;border-color:rgba(44,124,106,.4);}
   .stage-badge.stop{background:rgba(168,64,47,.2);color:#e5897b;border-color:rgba(168,64,47,.4);}
+  /* ألوان مميزة لكل مرحلة من مراحل الطلب */
+  .stage-badge.st-new{background:rgba(138,138,138,.18);color:#c8c8c8;border-color:rgba(138,138,138,.4);}
+  .stage-badge.st-contacting{background:rgba(60,140,220,.18);color:#7fbef2;border-color:rgba(60,140,220,.4);}
+  .stage-badge.st-confirmed{background:rgba(46,170,150,.18);color:#7fe0c8;border-color:rgba(46,170,150,.4);}
+  .stage-badge.st-preparing{background:rgba(227,177,0,.18);color:#e3b100;border-color:rgba(227,177,0,.4);}
+  .stage-badge.st-shipped{background:rgba(150,100,230,.18);color:#c3a6f5;border-color:rgba(150,100,230,.4);}
+  .stage-badge.st-delivered{background:rgba(60,180,140,.18);color:#8fe6c4;border-color:rgba(60,180,140,.4);}
+  .stage-badge.st-accounts{background:rgba(230,140,40,.18);color:#f5b877;border-color:rgba(230,140,40,.4);}
+  .stage-badge.st-completed{background:rgba(44,124,106,.22);color:#7fd4bd;border-color:rgba(44,124,106,.45);}
+  .stage-badge.st-returned{background:rgba(168,64,47,.2);color:#e5897b;border-color:rgba(168,64,47,.4);}
 
   .order-card{background:var(--ink-2);border:1px solid var(--line-dark);border-radius:12px;padding:16px 18px;margin-bottom:12px;}
   .order-card .top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;}
@@ -236,6 +257,14 @@
   .supplier-card{background:var(--ink-2);border:1px solid var(--line-dark);border-radius:12px;padding:16px 18px;margin-bottom:12px;}
   .supplier-card h4{margin:0 0 4px;color:#fff;font-size:15px;}
   .supplier-card .phone{font-size:12px;color:#8a8a8a;margin-bottom:10px;}
+  .wh-subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .wh-subtabs button{background:var(--ink-2);border:1px solid var(--line-dark);color:#c8c8c8;padding:8px 14px;border-radius:8px;font-size:12.5px;}
+  .wh-subtabs button.active{background:var(--copper);color:#0a0a0a;border-color:var(--copper);font-weight:700;}
+  .ledger-card{background:var(--ink-2);border:1px solid var(--line-dark);border-radius:12px;padding:16px;text-align:center;flex:1;min-width:150px;}
+  .ledger-card .lbl{color:#8a8a8a;font-size:12px;margin-bottom:6px;}
+  .ledger-card .val{font-size:22px;font-weight:800;}
+  .ledger-card.debit .val{color:#f5b877;}
+  .ledger-card.credit .val{color:#7fd4bd;}
   .item-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--line-dark);color:#bdbdbd;}
   .item-row:last-child{border-bottom:none;}
 
@@ -326,21 +355,8 @@
   .type-badge.trader{background:rgba(227,177,0,.18);color:#e3b100;}
 
   .table-wrap{width:100%;overflow-x:auto;}
-  .store-filter-bar{
-    display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;margin-bottom:24px;
-    padding:16px 18px;background:var(--ink-2);border:1px solid var(--line-dark);border-radius:12px;
-  }
-  .store-filter-bar .filter-group{display:flex;flex-direction:column;gap:6px;min-width:180px;}
-  .store-filter-bar .filter-group label{font-size:11.5px;color:#9a9a9a;font-weight:700;}
-  .store-filter-bar select{
-    background:var(--ink);border:1px solid var(--line-dark);color:#eaeaea;
-    padding:10px 12px;border-radius:8px;font-size:13.5px;min-width:180px;
-  }
-  @media (max-width:480px){
-    .store-filter-bar{flex-direction:column;align-items:stretch;}
-    .store-filter-bar .filter-group{min-width:0;}
-    .store-filter-bar select{min-width:0;width:100%;}
-  }
+  .store-filter-bar{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+  .store-filter-bar select{max-width:220px;}
   .img-preview-item{position:relative;width:74px;height:74px;}
   .img-preview-item img{width:100%;height:100%;object-fit:cover;border-radius:8px;border:1px solid var(--line-dark);}
   .img-preview-item button{position:absolute;top:-7px;left:-7px;background:var(--rose);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;line-height:1;padding:0;}
@@ -442,25 +458,14 @@ const FIREBASE_CONFIG = {
       <button type="button" class="hero-arrow next" onclick="heroStep(1)" aria-label="التالي">‹</button>
       <div class="hero-dots" id="heroDots"></div>
     </div>
-
     <div class="new-slider-wrap" id="newArrivalsWrap" style="display:none">
       <div class="section-head"><h2>عروض حصرية 🔥</h2></div>
       <div class="new-slider" id="newArrivalsScroller"><div class="new-slider-track" id="newArrivalsSlider"></div></div>
     </div>
 
     <div class="store-filter-bar">
-      <div class="filter-group">
-        <label>النوع</label>
-        <select id="storeGenderFilter" onchange="onStoreGenderFilterChange(this.value)">
-          <option value="">كل الأنواع</option>
-        </select>
-      </div>
-      <div class="filter-group" id="storeItemTypeGroup" style="display:none">
-        <label>الصنف</label>
-        <select id="storeItemTypeFilter" onchange="setCategoryFilter(this.value)">
-          <option value="">كل الأصناف</option>
-        </select>
-      </div>
+      <div class="gender-tabs" id="storeGenderTabs"></div>
+      <div class="cat-chips" id="storeItemTypeList"></div>
     </div>
 
     <div class="section-head">
@@ -510,8 +515,9 @@ const FIREBASE_CONFIG = {
         <button data-tab="all" onclick="teamTab('all')">كل الطلبات</button>
         <button data-tab="customers" onclick="teamTab('customers')">العملاء</button>
         <button data-tab="products" onclick="teamTab('products')">المنتجات</button>
-        <button data-tab="purchases" onclick="teamTab('purchases')">المشتريات</button>
+        <button data-tab="purchases" onclick="teamTab('purchases')">المخزن</button>
         <button data-tab="sales" onclick="teamTab('sales')">المبيعات</button>
+        <button data-tab="accounts" onclick="teamTab('accounts')">الحسابات</button>
       </div>
       <div class="dash-inner">
         <div id="team-tab-all" style="display:none">
@@ -555,41 +561,85 @@ const FIREBASE_CONFIG = {
         </div>
         <div id="team-tab-purchases" style="display:none">
           <div class="section-head" style="margin-bottom:14px">
-            <h2 style="color:#fff">المشتريات</h2>
+            <h2 style="color:#fff">المخزن</h2>
           </div>
-          <div class="sub">سجّل هنا كل عملية شراء بضاعة — لو الصنف اللي بتكتبه جديد، هيتضاف تلقائيًا لقايمة الأصناف المتاحة في المنتجات وفلاتر المتجر.</div>
-          <form id="purchaseForm" onsubmit="submitPurchase(event)" style="margin-bottom:24px">
-            <div class="field"><label>النوع</label>
-              <select id="purchaseGender" required></select>
-            </div>
-            <div class="field"><label>الصنف</label>
-              <input type="text" id="purchaseItemType" placeholder="مثال: هودي، تي شيرت، بنطلون..." required>
-            </div>
-            <div class="field"><label>الكمية</label><input type="number" id="purchaseQty" min="1" step="1" required></div>
-            <div class="field"><label>سعر الشراء للقطعة (ج.م)</label><input type="number" id="purchaseUnitCost" min="0" step="0.01" required></div>
-            <div class="field"><label>اسم المورد (اختياري)</label><input type="text" id="purchaseSupplier"></div>
-            <div class="field"><label>ملاحظات (اختياري)</label><textarea id="purchaseNote"></textarea></div>
-            <button type="submit" class="btn btn-copper btn-block">حفظ عملية الشراء</button>
-          </form>
-          <div class="section-head" style="margin-bottom:10px">
-            <h3 style="color:#fff;font-size:15px">سجل المشتريات</h3>
-            <span id="purchasesTotalCost" style="color:#8a8a8a;font-size:12.5px"></span>
+          <div class="wh-subtabs">
+            <button class="active" data-wh="purchases" onclick="warehouseTab('purchases')">المشتريات والفواتير</button>
+            <button data-wh="suppliers" onclick="warehouseTab('suppliers')">الموردين</button>
+            <button data-wh="items" onclick="warehouseTab('items')">الأصناف</button>
           </div>
-          <div class="table-wrap"><table class="data">
-            <thead><tr><th>التاريخ</th><th>النوع</th><th>الصنف</th><th>الكمية</th><th>سعر القطعة</th><th>الإجمالي</th><th>المورد</th></tr></thead>
-            <tbody id="purchasesTable"></tbody>
-          </table></div>
+
+          <div id="wh-tab-purchases">
+            <div class="sub">سجّل هنا كل عملية شراء بضاعة — لو الصنف اللي بتكتبه جديد، هيتضاف تلقائيًا لقايمة الأصناف المتاحة في المنتجات وفلاتر المتجر. كل عملية شراء بتاخد رقم فاتورة تلقائي.</div>
+            <form id="purchaseForm" onsubmit="submitPurchase(event)" style="margin-bottom:24px">
+              <div class="field"><label>النوع</label>
+                <select id="purchaseGender" required></select>
+              </div>
+              <div class="field"><label>الصنف</label>
+                <input type="text" id="purchaseItemType" placeholder="مثال: هودي، تي شيرت، بنطلون..." required>
+              </div>
+              <div class="field"><label>الكمية</label><input type="number" id="purchaseQty" min="1" step="1" required></div>
+              <div class="field"><label>سعر الشراء للقطعة (ج.م)</label><input type="number" id="purchaseUnitCost" min="0" step="0.01" required></div>
+              <div class="field">
+                <label>المورد (اختياري)</label>
+                <select id="purchaseSupplierId" onchange="onPurchaseSupplierChange(this.value)">
+                  <option value="">— بدون مورد محدد —</option>
+                </select>
+                <button type="button" class="btn btn-outline btn-sm" style="margin-top:8px" onclick="openSupplierModal()">+ مورد جديد</button>
+              </div>
+              <div class="supplier-card" id="purchaseSupplierInfo" style="display:none;margin-bottom:2px">
+                <div style="color:#fff;font-weight:700;margin-bottom:4px" id="psiName"></div>
+                <div style="color:#8a8a8a;font-size:12.5px" id="psiPhone"></div>
+                <div style="color:#8a8a8a;font-size:12.5px" id="psiAddress"></div>
+              </div>
+              <div class="field"><label>ملاحظات (اختياري)</label><textarea id="purchaseNote"></textarea></div>
+              <button type="submit" class="btn btn-copper btn-block">حفظ عملية الشراء</button>
+            </form>
+            <div class="section-head" style="margin-bottom:10px">
+              <h3 style="color:#fff;font-size:15px">سجل فواتير الشراء</h3>
+              <span id="purchasesTotalCost" style="color:#8a8a8a;font-size:12.5px"></span>
+            </div>
+            <div class="table-wrap"><table class="data">
+              <thead><tr><th>رقم الفاتورة</th><th>التاريخ</th><th>النوع</th><th>الصنف</th><th>الكمية</th><th>سعر القطعة</th><th>الإجمالي</th><th>المورد</th><th>بيانات التواصل</th></tr></thead>
+              <tbody id="purchasesTable"></tbody>
+            </table></div>
+          </div>
+
+          <div id="wh-tab-suppliers" style="display:none">
+            <div class="section-head" style="margin-bottom:14px">
+              <h3 style="color:#fff;font-size:15px">الموردين</h3>
+              <button class="btn btn-copper btn-sm" onclick="openSupplierModal()">+ إضافة مورد</button>
+            </div>
+            <div id="whSuppliersList"></div>
+            <div class="empty" id="whSuppliersEmpty" style="display:none;color:#8a8a8a">لسه مفيش موردين مضافين.</div>
+          </div>
+
+          <div id="wh-tab-items" style="display:none">
+            <div class="section-head" style="margin-bottom:14px">
+              <h3 style="color:#fff;font-size:15px">الأصناف</h3>
+            </div>
+            <div class="sub">الأصناف بتتضاف تلقائيًا من قسم المشتريات أو من فورم المنتج، وممكن تضيف صنف جديد هنا مباشرة.</div>
+            <form onsubmit="submitItemTypeDirect(event)" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px">
+              <div class="field" style="margin-bottom:0"><label>النوع</label><select id="itNewGender" required></select></div>
+              <div class="field" style="margin-bottom:0;flex:1;min-width:160px"><label>اسم الصنف</label><input type="text" id="itNewLabel" required></div>
+              <button type="submit" class="btn btn-copper btn-sm">+ إضافة صنف</button>
+            </form>
+            <div class="table-wrap"><table class="data">
+              <thead><tr><th>النوع</th><th>الصنف</th><th>عدد المنتجات المرتبطة</th></tr></thead>
+              <tbody id="itemTypesTable"></tbody>
+            </table></div>
+          </div>
         </div>
         <div id="team-tab-sales" style="display:none">
           <h2>المبيعات</h2>
-          <div class="sub">تقرير سريع لإجمالي المبيعات وأكثر الأصناف مبيعًا (من الطلبات المكتملة).</div>
+          <div class="sub">تقرير سريع لإجمالي المبيعات وأكثر الأصناف مبيعًا (من الطلبات المؤكدة فأعلى، بعد استبعاد المرتجع).</div>
           <div style="display:flex;gap:14px;flex-wrap:wrap;margin:16px 0 24px">
             <div class="team-panel" style="flex:1;min-width:160px;text-align:center">
               <div style="color:#8a8a8a;font-size:12px;margin-bottom:6px">إجمالي المبيعات</div>
               <div id="salesTotalRevenue" style="color:var(--copper);font-size:24px;font-weight:800">0 ج.م</div>
             </div>
             <div class="team-panel" style="flex:1;min-width:160px;text-align:center">
-              <div style="color:#8a8a8a;font-size:12px;margin-bottom:6px">عدد الطلبات المكتملة</div>
+              <div style="color:#8a8a8a;font-size:12px;margin-bottom:6px">عدد الطلبات المؤكدة</div>
               <div id="salesOrderCount" style="color:#fff;font-size:24px;font-weight:800">0</div>
             </div>
           </div>
@@ -633,6 +683,35 @@ const FIREBASE_CONFIG = {
           <div id="teamCustomersList"></div>
           <div class="empty" id="teamCustomersEmpty" style="display:none;color:#8a8a8a">لا يوجد عملاء مطابقين لهذا الفلتر.</div>
         </div>
+        <div id="team-tab-accounts" style="display:none">
+          <h2>الحسابات</h2>
+          <div class="sub">متابعة تحصيل مبالغ الطلبات (الدفع عند الاستلام) من شركات الشحن، والرصيد المالي مع كل شركة.</div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;margin:16px 0 20px">
+            <div class="ledger-card debit">
+              <div class="lbl">مدين — لسه عند شركات الشحن</div>
+              <div class="val" id="ledgerDebitTotal">0 ج.م</div>
+            </div>
+            <div class="ledger-card credit">
+              <div class="lbl">دائن — تم تحصيله وإقفاله</div>
+              <div class="val" id="ledgerCreditTotal">0 ج.م</div>
+            </div>
+          </div>
+          <div class="filters">
+            <select id="accountsCompanyFilter" onchange="renderAccountsTab()">
+              <option value="">كل شركات الشحن</option>
+            </select>
+          </div>
+          <h3 style="color:#fff;font-size:15px;margin:18px 0 10px">الرصيد لكل شركة شحن</h3>
+          <div class="table-wrap"><table class="data">
+            <thead><tr><th>شركة الشحن</th><th>عدد الطلبات لسه هيتحصّل</th><th>مدين (لسه عندهم)</th><th>دائن (اتحصّل)</th></tr></thead>
+            <tbody id="companyLedgerTable"></tbody>
+          </table></div>
+          <h3 style="color:#fff;font-size:15px;margin:22px 0 10px">الطلبات بانتظار التحصيل</h3>
+          <div class="table-wrap"><table class="data">
+            <thead><tr><th>رقم الطلب</th><th>العميل</th><th>شركة الشحن</th><th>الإجمالي</th><th>آخر تحديث</th><th></th></tr></thead>
+            <tbody id="accountsPendingTable"></tbody>
+          </table></div>
+        </div>
       </div>
     </div>
   </section>
@@ -644,7 +723,6 @@ const FIREBASE_CONFIG = {
         <button class="active" data-tab="orders" onclick="adminTab('orders')">كل الطلبات</button>
         <button data-tab="team" onclick="adminTab('team')">الفريق</button>
         <button data-tab="customers" onclick="adminTab('customers')">العملاء</button>
-        <button data-tab="suppliers" onclick="adminTab('suppliers')">الموردين والمبيعات</button>
       </div>
       <div class="dash-inner">
         <div id="admin-tab-orders">
@@ -710,15 +788,6 @@ const FIREBASE_CONFIG = {
 
           <div id="customersList"></div>
           <div class="empty" id="customersEmpty" style="display:none;color:#8a8a8a">لا يوجد عملاء مطابقين لهذا الفلتر.</div>
-        </div>
-
-        <div id="admin-tab-suppliers" style="display:none">
-          <div class="section-head" style="margin-bottom:14px">
-            <h2 style="color:#fff">الموردين والمبيعات</h2>
-            <button class="btn btn-copper btn-sm" onclick="openSupplierModal()">+ إضافة مورد</button>
-          </div>
-          <div id="suppliersList"></div>
-          <div class="empty" id="suppliersEmpty" style="display:none;color:#8a8a8a">لسه مفيش موردين مضافين.</div>
         </div>
       </div>
     </div>
@@ -902,6 +971,7 @@ const FIREBASE_CONFIG = {
     <form id="supplierForm" onsubmit="submitSupplier(event)">
       <div class="field"><label>اسم المورد</label><input type="text" id="sName" required></div>
       <div class="field"><label>رقم التواصل</label><input type="text" id="sPhone"></div>
+      <div class="field"><label>العنوان</label><input type="text" id="sAddress"></div>
       <button type="submit" class="btn btn-copper btn-block">حفظ المورد</button>
     </form>
   </div>
@@ -939,12 +1009,16 @@ const STAGES = [
   {key:'confirmed',   label:'تأكيد الطلب'},
   {key:'preparing',   label:'تجهيز الطلب (المبيعات)'},
   {key:'shipped',     label:'مع شركة الشحن'},
-  {key:'delivered',   label:'تم التسليم'},
-  {key:'completed',   label:'تم تأكيد الاستلام'},
+  {key:'delivered',   label:'تم التسليم للعميل'},
+  {key:'accounts',    label:'عند الحسابات (تحصيل المبلغ)'},
+  {key:'completed',   label:'تم التحصيل والإغلاق'},
   {key:'returned',    label:'تم الإرجاع'},
 ];
 const stageLabel = k => (STAGES.find(s=>s.key===k)||{}).label || k;
 const stageIndex = k => STAGES.findIndex(s=>s.key===k);
+function stageBadgeHtml(status){
+  return `<span class="stage-badge st-${status||'new'}">${esc(stageLabel(status))}</span>`;
+}
 
 let currentUser = null;   // firebase auth user
 let currentRole = 'customer'; // customer | team | admin
@@ -1167,11 +1241,12 @@ function refreshRoleBoundListeners(){
     listenTeamOrders();
     listenCustomers();
     listenPurchases();
+    listenSuppliers();
+    listenShippingCompanies();
   }
   if(currentRole==='admin'){
     listenAdminOrders();
     listenRoles();
-    listenSuppliers();
   }
 }
 
@@ -1293,9 +1368,8 @@ function listenItemTypes(){
     renderPurchaseGenderSelect();
     renderTeamAllOrders();
     renderAdminOrders();
-  }, err=>{
-    console.error('itemTypes error:', err);
-    toast('تعذر تحميل الأصناف — يحتاج تحديث قواعد أمان Firestore (Firestore rules) للسماح بقراءة/كتابة itemTypes و purchases');
+    renderItemTypesGenderSelect();
+    renderItemTypesTable();
   });
 }
 function itemTypeLabel(id){
@@ -1331,28 +1405,30 @@ function renderPItemTypeSelect(){
   if(types.some(t=>t.id===current)) itemSel.value = current;
 }
 
-/* --- شرائح فلترة المتجر: قايمة منسدلة للنوع + قايمة للصنف --- */
+/* --- فلتر المتجر الاحترافي: تابات للنوع (رجالي/حريمي/أطفال) + شرائح للصنف --- */
+const GENDER_ICONS = {men:'👔', women:'👗', kids:'🧸'};
 let categoryFilter = '';
 let genderFilter = '';
 function renderStoreFilters(){
-  const genderSel = document.getElementById('storeGenderFilter');
-  if(genderSel){
-    genderSel.innerHTML = '<option value="">كل الأنواع</option>' + Object.entries(GENDER_LABELS).map(([k,l])=>`<option value="${k}" ${genderFilter===k?'selected':''}>${l}</option>`).join('');
+  const tabsWrap = document.getElementById('storeGenderTabs');
+  if(tabsWrap){
+    tabsWrap.innerHTML = `<button type="button" class="gender-tab ${!genderFilter?'active':''}" onclick="setGenderFilter('')"><span class="ic">🛍️</span> الكل</button>` +
+      Object.entries(GENDER_LABELS).map(([k,l])=>`<button type="button" class="gender-tab ${genderFilter===k?'active':''}" onclick="setGenderFilter('${k}')"><span class="ic">${GENDER_ICONS[k]||''}</span> ${l}</button>`).join('');
   }
-  const groupWrap = document.getElementById('storeItemTypeGroup');
-  const typeSel = document.getElementById('storeItemTypeFilter');
-  if(groupWrap && typeSel){
-    const types = genderFilter ? itemTypesForGender(genderFilter) : [];
-    if(!genderFilter || !types.length){
-      groupWrap.style.display = 'none';
-      typeSel.innerHTML = '<option value="">كل الأصناف</option>';
+  const listWrap = document.getElementById('storeItemTypeList');
+  if(listWrap){
+    const types = genderFilter ? itemTypesForGender(genderFilter) : itemTypesCache;
+    if(!types.length){
+      listWrap.style.display = 'none';
+      listWrap.innerHTML = '';
     } else {
-      groupWrap.style.display = 'flex';
-      typeSel.innerHTML = '<option value="">كل الأصناف</option>' + types.map(t=>`<option value="${t.id}" ${categoryFilter===t.id?'selected':''}>${esc(t.label)}</option>`).join('');
+      listWrap.style.display = 'flex';
+      listWrap.innerHTML = `<button class="cat-chip ${!categoryFilter?'active':''}" onclick="setCategoryFilter('')">كل ${esc(genderFilter?GENDER_LABELS[genderFilter]:'الأصناف')}</button>` +
+        types.map(t=>`<button class="cat-chip ${categoryFilter===t.id?'active':''}" onclick="setCategoryFilter('${t.id}')">${esc(t.label)}</button>`).join('');
     }
   }
 }
-function onStoreGenderFilterChange(v){
+function setGenderFilter(v){
   genderFilter = v;
   categoryFilter = '';
   renderStoreFilters();
@@ -1360,6 +1436,7 @@ function onStoreGenderFilterChange(v){
 }
 function setCategoryFilter(cat){
   categoryFilter = cat;
+  if(cat) genderFilter = categoryGroupKeyOf(cat) || genderFilter;
   renderStoreFilters();
   renderStoreProducts();
 }
@@ -1654,7 +1731,9 @@ function renderProductDetail(p){
       ${hasDiscount? `<span class="old-price" style="font-size:16px">${money(p.compareAtPrice)}</span>` : ''}
       <span class="price" style="font-size:22px">${money(p.price)}</span>
     </div>
-    <button type="button" class="btn btn-outline btn-sm" style="margin-bottom:6px" onclick="shareProductOnFacebook('${p.id}')">📤 مشاركة على فيسبوك</button>
+    <button type="button" class="btn btn-block" style="margin-bottom:10px;background:#1877F2;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px" onclick="shareProductOnFacebook('${p.id}')">
+      <span style="font-size:16px">📘</span> مشاركة المنتج على فيسبوك
+    </button>
     ${p.stock>0 ? '' : '<div class="stock-tag">غير متوفر حاليًا</div>'}
 
     <div class="pd-tabs" style="display:flex;gap:6px;margin:16px 0 10px;border-bottom:1px solid var(--line-dark)">
@@ -1875,9 +1954,11 @@ function renderCustomerOrderCard(o){
   if(o.status==='delivered'){
     actionBtns = `
       <div class="p-row" style="margin-top:10px;gap:8px">
-        <button class="btn btn-emerald btn-sm" onclick="customerConfirm('${o.id}','completed')">تأكيد الاستلام</button>
+        <button class="btn btn-emerald btn-sm" onclick="customerConfirm('${o.id}','accounts')">تأكيد الاستلام</button>
         <button class="btn btn-outline btn-sm" onclick="customerConfirm('${o.id}','returned')">طلب إرجاع</button>
       </div>`;
+  } else if(o.status==='accounts'){
+    actionBtns = `<div style="margin-top:8px;font-size:11.5px;color:#8a8a8a">تم تأكيد الاستلام — بانتظار إغلاق الطلب من الحسابات.</div>`;
   }
   return `
     <div class="p-card" style="margin-bottom:14px;padding:16px">
@@ -1896,17 +1977,117 @@ function renderCustomerOrderCard(o){
 }
 async function customerConfirm(orderId, status){
   await db.collection('orders').doc(orderId).update({status, updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  toast(status==='completed' ? 'تم تأكيد الاستلام، شكرًا لك 🌿' : 'تم تسجيل طلب الإرجاع');
+  toast(status==='accounts' ? 'تم تأكيد الاستلام، شكرًا لك 🌿' : 'تم تسجيل طلب الإرجاع');
 }
 
 /* ============================================================
    لوحة الفريق
    ============================================================ */
 function teamTab(name){
-  ['new','mine','all','customers','products','purchases','sales'].forEach(t=>{
+  ['new','mine','all','customers','products','purchases','sales','accounts'].forEach(t=>{
     document.getElementById('team-tab-'+t).style.display = (t===name)?'block':'none';
   });
   document.querySelectorAll('#view-team .dash-tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  if(name==='accounts') renderAccountsTab();
+}
+function warehouseTab(name){
+  ['purchases','suppliers','items'].forEach(t=>{
+    document.getElementById('wh-tab-'+t).style.display = (t===name)?'block':'none';
+  });
+  document.querySelectorAll('.wh-subtabs button').forEach(b=>b.classList.toggle('active', b.dataset.wh===name));
+}
+
+/* ============================================================
+   إدارة الأصناف مباشرة من المخزن
+   ============================================================ */
+function renderItemTypesGenderSelect(){
+  const sel = document.getElementById('itNewGender');
+  if(!sel) return;
+  const current = sel.value;
+  sel.innerHTML = Object.entries(GENDER_LABELS).map(([k,l])=>`<option value="${k}">${l}</option>`).join('');
+  if(current) sel.value = current;
+}
+async function submitItemTypeDirect(e){
+  e.preventDefault();
+  const gender = document.getElementById('itNewGender').value;
+  const label = document.getElementById('itNewLabel').value.trim();
+  if(!gender || !label){ toast('استكمل بيانات الصنف'); return; }
+  const exists = itemTypesCache.find(t=>t.gender===gender && t.label.trim().toLowerCase()===label.toLowerCase());
+  if(exists){ toast('الصنف ده موجود بالفعل لنفس النوع'); return; }
+  await db.collection('itemTypes').add({gender, label, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+  document.getElementById('itNewLabel').value = '';
+  toast('تمت إضافة الصنف ✓');
+}
+function renderItemTypesTable(){
+  const tbody = document.getElementById('itemTypesTable');
+  if(!tbody) return;
+  tbody.innerHTML = itemTypesCache.map(t=>{
+    const count = products.filter(p=>p.category===t.id).length;
+    return `<tr><td>${esc(GENDER_LABELS[t.gender]||'—')}</td><td>${esc(t.label)}</td><td class="mono">${count}</td></tr>`;
+  }).join('') || `<tr><td colspan="3" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد أصناف مضافة بعد</td></tr>`;
+}
+
+/* ============================================================
+   الحسابات: متابعة تحصيل مبالغ شركات الشحن
+   ============================================================ */
+function renderAccountsCompanyFilter(){
+  const sel = document.getElementById('accountsCompanyFilter');
+  if(!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">كل شركات الشحن</option>' +
+    shippingCompaniesCache.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
+  if(shippingCompaniesCache.some(c=>c.name===current)) sel.value = current;
+}
+function renderAccountsTab(){
+  const debitEl = document.getElementById('ledgerDebitTotal');
+  const creditEl = document.getElementById('ledgerCreditTotal');
+  const companyTbody = document.getElementById('companyLedgerTable');
+  const pendingTbody = document.getElementById('accountsPendingTable');
+  if(!debitEl || !companyTbody) return;
+  const companyFilter = document.getElementById('accountsCompanyFilter')?.value || '';
+
+  /* مدين: طلبات وصلت لشركة الشحن ولسه ما اتحصلتش (shipped/delivered/accounts) */
+  const pendingStatuses = ['shipped','delivered','accounts'];
+  const pendingOrders = teamAllOrdersCache.filter(o=>pendingStatuses.includes(o.status) && (!companyFilter || o.shippingCompany===companyFilter));
+  /* دائن: طلبات اتحصلت فعلًا (completed مع collectionStatus=collected) */
+  const collectedOrders = teamAllOrdersCache.filter(o=>o.status==='completed' && o.collectionStatus==='collected' && (!companyFilter || o.shippingCompany===companyFilter));
+
+  const totalDebit = pendingOrders.reduce((s,o)=>s+(o.total||0),0);
+  const totalCredit = collectedOrders.reduce((s,o)=>s+(o.collectedAmount||o.total||0),0);
+  debitEl.textContent = money(totalDebit);
+  creditEl.textContent = money(totalCredit);
+
+  /* تجميع حسب شركة الشحن */
+  const byCompany = {};
+  pendingOrders.forEach(o=>{
+    const key = o.shippingCompany || 'غير محدد';
+    if(!byCompany[key]) byCompany[key] = {count:0, debit:0, credit:0};
+    byCompany[key].count++;
+    byCompany[key].debit += o.total||0;
+  });
+  collectedOrders.forEach(o=>{
+    const key = o.shippingCompany || 'غير محدد';
+    if(!byCompany[key]) byCompany[key] = {count:0, debit:0, credit:0};
+    byCompany[key].credit += o.collectedAmount||o.total||0;
+  });
+  const rows = Object.entries(byCompany).sort((a,b)=>b[1].debit-a[1].debit);
+  companyTbody.innerHTML = rows.map(([name,d])=>`
+    <tr>
+      <td>${esc(name)}</td>
+      <td class="mono">${d.count}</td>
+      <td class="mono" style="color:#f5b877">${money(d.debit)}</td>
+      <td class="mono" style="color:#7fd4bd">${money(d.credit)}</td>
+    </tr>`).join('') || `<tr><td colspan="4" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد بيانات بعد</td></tr>`;
+
+  pendingTbody.innerHTML = pendingOrders.map(o=>`
+    <tr>
+      <td class="mono">#${o.id.slice(0,6)}</td>
+      <td>${esc(o.customerName||'—')}</td>
+      <td>${esc(o.shippingCompany||'—')}</td>
+      <td class="mono">${money(o.total)}</td>
+      <td class="mono" style="font-size:11.5px">${fmtDate(o.updatedAt)}</td>
+      <td>${o.status==='accounts'? `<button class="btn btn-emerald btn-sm" onclick="markOrderCollected('${o.id}')">تم التحصيل ✓</button>` : stageBadgeHtml(o.status)}</td>
+    </tr>`).join('') || `<tr><td colspan="6" style="text-align:center;color:#8a8a8a;padding:20px">مفيش طلبات بانتظار التحصيل حاليًا</td></tr>`;
 }
 
 function listenTeamOrders(){
@@ -1933,6 +2114,7 @@ function listenTeamOrders(){
     teamAllOrdersCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     renderTeamAllOrders();
     renderSalesReport();
+    renderAccountsTab();
   });
 }
 let teamAllOrdersCache = [];
@@ -1955,7 +2137,7 @@ function renderTeamAllOrders(){
       <td>${esc(o.customerName)}<br><span style="color:#8a8a8a;font-size:11.5px">${esc(o.phone||'')}</span></td>
       <td>${customerTypeBadgeHtml(o.customerUid)}</td>
       <td>${esc(o.claimedByName||'—')}</td>
-      <td><span class="stage-badge ${o.status==='completed'?'done':o.status==='returned'?'stop':''}">${stageLabel(o.status)}</span></td>
+      <td>${stageBadgeHtml(o.status)}</td>
       <td>${contactBtnsHtml(o.phone)}</td>
       <td class="mono" style="font-size:11.5px">${fmtDate(o.updatedAt)}</td>
     </tr>`).join('') || `<tr><td colspan="8" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد نتائج</td></tr>`;
@@ -1972,12 +2154,14 @@ function teamOrderCard(o, mode){
       actions = `<button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','preparing')">بدء التجهيز (المبيعات)</button>`;
     } else if(o.status==='preparing'){
       actions = `
-        <input type="text" id="ship-${o.id}" placeholder="اسم شركة الشحن">
+        <select id="ship-${o.id}">${shippingCompanyOptionsHtml()}</select>
         <button class="btn btn-emerald btn-sm" onclick="shipOrder('${o.id}')">تسليم لشركة الشحن</button>`;
     } else if(o.status==='shipped'){
       actions = `<button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','delivered')">تم التسليم للعميل</button>`;
     } else if(o.status==='delivered'){
-      actions = `<span class="stage-badge done">بانتظار تأكيد العميل</span>`;
+      actions = `<span class="stage-badge st-delivered">بانتظار تأكيد العميل</span>`;
+    } else if(o.status==='accounts'){
+      actions = `<button class="btn btn-emerald btn-sm" onclick="markOrderCollected('${o.id}')">تم تحصيل المبلغ من شركة الشحن ✓</button>`;
     }
   }
   return `
@@ -1992,7 +2176,7 @@ function teamOrderCard(o, mode){
           </div>
           <div class="meta">${esc(o.address)}</div>
         </div>
-        <span class="stage-badge">${stageLabel(o.status)}</span>
+        ${stageBadgeHtml(o.status)}
       </div>
       <div class="items-list">${orderItemsSummary(o)}</div>
       <div class="meta">الإجمالي: <b class="mono">${money(o.total)}</b>${o.notes? ' — ملاحظات: '+esc(o.notes):''}</div>
@@ -2073,12 +2257,47 @@ async function advanceOrder(orderId, status){
   toast('تم تحديث الطلب: '+stageLabel(status));
 }
 async function shipOrder(orderId){
-  const val = document.getElementById('ship-'+orderId).value.trim();
-  if(!val){ toast('اكتب اسم شركة الشحن'); return; }
+  const sel = document.getElementById('ship-'+orderId);
+  let val = sel.value;
+  if(val==='__new__'){
+    val = (prompt('اسم شركة الشحن الجديدة:')||'').trim();
+    if(!val){ toast('لازم تدخل اسم شركة الشحن'); return; }
+    await db.collection('shippingCompanies').add({name: val, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+  }
+  if(!val){ toast('اختر شركة الشحن'); return; }
   await db.collection('orders').doc(orderId).update({
     status:'shipped', shippingCompany: val, updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
   });
   toast('تم التسليم لشركة الشحن');
+}
+async function markOrderCollected(orderId){
+  const o = teamAllOrdersCache.find(x=>x.id===orderId);
+  if(!confirm('تأكيد إن شركة الشحن حوّلت المبلغ وتم تحصيله بالكامل؟')) return;
+  await db.collection('orders').doc(orderId).update({
+    status:'completed',
+    collectionStatus:'collected',
+    collectedAmount: o? (o.total||0) : null,
+    collectedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+  toast('تم إغلاق الطلب بعد التحصيل ✓');
+}
+
+/* ============================================================
+   شركات الشحن
+   ============================================================ */
+let shippingCompaniesCache = [];
+function listenShippingCompanies(){
+  db.collection('shippingCompanies').orderBy('name').onSnapshot(snap=>{
+    shippingCompaniesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderAccountsCompanyFilter();
+    renderAccountsTab();
+  });
+}
+function shippingCompanyOptionsHtml(){
+  return '<option value="">اختر شركة الشحن</option>' +
+    shippingCompaniesCache.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('') +
+    '<option value="__new__">+ شركة شحن جديدة…</option>';
 }
 
 function renderTeamProducts(){
@@ -2112,9 +2331,6 @@ function listenPurchases(){
   db.collection('purchases').orderBy('createdAt','desc').onSnapshot(snap=>{
     purchasesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     renderPurchasesTable();
-  }, err=>{
-    console.error('purchases error:', err);
-    toast('تعذر تحميل المشتريات — يحتاج تحديث قواعد أمان Firestore (Firestore rules)');
   });
 }
 function renderPurchasesTable(){
@@ -2125,6 +2341,7 @@ function renderPurchasesTable(){
     totalCost += p.totalCost||0;
     return `
     <tr>
+      <td class="mono" style="font-size:11.5px">${esc(p.invoiceNo||'—')}</td>
       <td class="mono" style="font-size:11.5px">${fmtDate(p.createdAt)}</td>
       <td>${esc(GENDER_LABELS[p.gender]||'—')}</td>
       <td>${esc(p.itemTypeLabel||'—')}</td>
@@ -2132,10 +2349,30 @@ function renderPurchasesTable(){
       <td class="mono">${money(p.unitCost)}</td>
       <td class="mono">${money(p.totalCost)}</td>
       <td>${esc(p.supplierName||'—')}</td>
+      <td style="font-size:11.5px;color:#8a8a8a">${esc(p.supplierPhone||'')}${p.supplierPhone&&p.supplierAddress?' — ':''}${esc(p.supplierAddress||'')}</td>
     </tr>`;
-  }).join('') || `<tr><td colspan="7" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد عمليات شراء مسجّلة بعد</td></tr>`;
+  }).join('') || `<tr><td colspan="9" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد فواتير شراء مسجّلة بعد</td></tr>`;
   const totalEl = document.getElementById('purchasesTotalCost');
   if(totalEl) totalEl.textContent = 'إجمالي تكلفة المشتريات: '+money(totalCost);
+}
+function renderPurchaseSupplierSelect(){
+  const sel = document.getElementById('purchaseSupplierId');
+  if(!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— بدون مورد محدد —</option>' +
+    suppliersCache.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  if(suppliersCache.some(s=>s.id===current)) sel.value = current;
+  onPurchaseSupplierChange(sel.value);
+}
+function onPurchaseSupplierChange(supplierId){
+  const infoBox = document.getElementById('purchaseSupplierInfo');
+  const s = suppliersCache.find(x=>x.id===supplierId);
+  if(!infoBox) return;
+  if(!s){ infoBox.style.display = 'none'; return; }
+  document.getElementById('psiName').textContent = s.name;
+  document.getElementById('psiPhone').textContent = 'الهاتف: ' + (s.phone || 'غير مسجل');
+  document.getElementById('psiAddress').textContent = 'العنوان: ' + (s.address || 'غير مسجل');
+  infoBox.style.display = 'block';
 }
 async function submitPurchase(e){
   e.preventDefault();
@@ -2143,7 +2380,8 @@ async function submitPurchase(e){
   const label = document.getElementById('purchaseItemType').value.trim();
   const qty = Number(document.getElementById('purchaseQty').value);
   const unitCost = Number(document.getElementById('purchaseUnitCost').value);
-  const supplierName = document.getElementById('purchaseSupplier').value.trim();
+  const supplierId = document.getElementById('purchaseSupplierId').value;
+  const supplier = suppliersCache.find(s=>s.id===supplierId);
   const note = document.getElementById('purchaseNote').value.trim();
   if(!gender || !label || !qty || !unitCost){ toast('استكمل بيانات عملية الشراء'); return; }
   try{
@@ -2159,13 +2397,19 @@ async function submitPurchase(e){
       itemTypeLabelSaved = label;
     }
     await db.collection('purchases').add({
+      invoiceNo: 'INV-' + String(purchasesCache.length + 1).padStart(5,'0'),
       gender, itemTypeId, itemTypeLabel: itemTypeLabelSaved,
       qty, unitCost, totalCost: qty*unitCost,
-      supplierName: supplierName||null, note: note||null,
+      supplierId: supplierId||null,
+      supplierName: supplier? supplier.name : null,
+      supplierPhone: supplier? (supplier.phone||null) : null,
+      supplierAddress: supplier? (supplier.address||null) : null,
+      note: note||null,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
     document.getElementById('purchaseForm').reset();
     renderPurchaseGenderSelect();
+    renderPurchaseSupplierSelect();
     toast('تم تسجيل عملية الشراء ✓');
   }catch(err){ toast('حصل خطأ: '+err.message); }
 }
@@ -2173,19 +2417,19 @@ async function submitPurchase(e){
 /* ============================================================
    المبيعات
    ============================================================ */
-const SALES_STATUSES = ['confirmed','preparing','shipped','delivered','completed'];
 function renderSalesReport(){
   const revenueEl = document.getElementById('salesTotalRevenue');
   const countEl = document.getElementById('salesOrderCount');
   const tbody = document.getElementById('salesByCategoryTable');
   if(!revenueEl || !tbody) return;
-  /* أي طلب اتأكد حجزه (وما بعده) بيتحسب كبيعة، مش لازم يكون كمل التسليم بالكامل */
-  const confirmedSales = teamAllOrdersCache.filter(o=>SALES_STATUSES.includes(o.status));
-  const totalRevenue = confirmedSales.reduce((s,o)=>s+(o.total||0), 0);
+  /* أي طلب وصل لمرحلة "تأكيد الطلب" أو بعدها (ما عدا المرتجع) يُحتسب كبيع مؤكد */
+  const confirmedIdx = stageIndex('confirmed');
+  const confirmed = teamAllOrdersCache.filter(o=>o.status!=='returned' && stageIndex(o.status) >= confirmedIdx);
+  const totalRevenue = confirmed.reduce((s,o)=>s+(o.total||0), 0);
   revenueEl.textContent = money(totalRevenue);
-  countEl.textContent = confirmedSales.length;
+  countEl.textContent = confirmed.length;
   const byCat = {};
-  confirmedSales.forEach(o=>{
+  confirmed.forEach(o=>{
     (o.items||[]).forEach(it=>{
       const key = it.category || 'other';
       if(!byCat[key]) byCat[key] = {gender: it.gender||'', qty:0, revenue:0};
@@ -2200,8 +2444,7 @@ function renderSalesReport(){
       <td>${esc(itemTypeLabel(catId))}</td>
       <td class="mono">${d.qty}</td>
       <td class="mono">${money(d.revenue)}</td>
-    </tr>`).join('') || `<tr><td colspan="4" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد مبيعات مؤكدة بعد</td></tr>`;
-}    </tr>`).join('') || `<tr><td colspan="4" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد مبيعات مكتملة بعد</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="4" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد مبيعات مكتملة بعد</td></tr>`;
 }
 
 let editingProductId = null;
@@ -2371,7 +2614,7 @@ async function deleteProduct(id){
    لوحة الإدارة
    ============================================================ */
 function adminTab(name){
-  ['orders','team','customers','suppliers'].forEach(t=>{
+  ['orders','team','customers'].forEach(t=>{
     document.getElementById('admin-tab-'+t).style.display = (t===name)?'block':'none';
   });
   document.querySelectorAll('#view-admin .dash-tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
@@ -2405,7 +2648,7 @@ function renderAdminOrders(){
       <td>${esc(o.customerName)}<br><span style="color:#8a8a8a;font-size:11.5px">${esc(o.customerEmail||'')}</span><br><span style="color:#8a8a8a;font-size:11.5px">${esc(o.phone||'')}</span></td>
       <td>${customerTypeBadgeHtml(o.customerUid)}</td>
       <td>${esc(o.claimedByName||'—')}</td>
-      <td><span class="stage-badge ${o.status==='completed'?'done':o.status==='returned'?'stop':''}">${stageLabel(o.status)}</span></td>
+      <td>${stageBadgeHtml(o.status)}</td>
       <td>${contactBtnsHtml(o.phone)}</td>
       <td>
         <div style="display:flex;gap:6px;align-items:center">
@@ -2588,17 +2831,22 @@ function copyBulkMessageText(px){
   navigator.clipboard.writeText(msg).then(()=>toast('تم نسخ نص الرسالة')).catch(()=>toast('تعذر النسخ'));
 }
 
+let suppliersCache = [];
 function listenSuppliers(){
   unsubSuppliers = db.collection('suppliers').onSnapshot(snap=>{
-    const list = snap.docs.map(d=>({id:d.id,...d.data(),items:d.data().items||[]}));
-    document.getElementById('suppliersEmpty').style.display = list.length? 'none':'block';
-    document.getElementById('suppliersList').innerHTML = list.map(s=>`
+    suppliersCache = snap.docs.map(d=>({id:d.id,...d.data(),items:d.data().items||[]}));
+    const list = suppliersCache;
+    const emptyEl = document.getElementById('whSuppliersEmpty');
+    const listEl = document.getElementById('whSuppliersList');
+    if(emptyEl) emptyEl.style.display = list.length? 'none':'block';
+    if(listEl) listEl.innerHTML = list.map(s=>`
       <div class="supplier-card">
         <h4>${esc(s.name)}</h4>
-        <div class="phone">${esc(s.phone||'بدون رقم تواصل')}</div>
+        <div class="phone">${esc(s.phone||'بدون رقم تواصل')}${s.address? ' — '+esc(s.address) : ''}</div>
         ${s.items.map(i=>`<div class="item-row"><span>${esc(i.name)} — ${i.qty} قطعة</span><span class="mono">${money(i.price)}</span></div>`).join('') || '<div style="color:#8a8a8a;font-size:12.5px">لا توجد أصناف مسجلة.</div>'}
         <button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="openSupplierItemModal('${s.id}')">+ إضافة صنف</button>
       </div>`).join('');
+    renderPurchaseSupplierSelect();
   });
 }
 function openSupplierModal(){ document.getElementById('supplierForm').reset(); document.getElementById('supplierModalWrap').classList.add('active'); pushModalHistory(); }
@@ -2607,6 +2855,7 @@ async function submitSupplier(e){
   await db.collection('suppliers').add({
     name: document.getElementById('sName').value.trim(),
     phone: document.getElementById('sPhone').value.trim(),
+    address: document.getElementById('sAddress').value.trim(),
     items: [],
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
   });
