@@ -517,8 +517,7 @@ const FIREBASE_CONFIG = {
   <section class="view" id="view-team">
     <div class="dash">
       <div class="dash-tabs">
-        <button class="active" data-tab="new" onclick="teamTab('new')">طلبات جديدة</button>
-        <button data-tab="contact" onclick="teamTab('contact')">التواصل</button>
+        <button class="active" data-tab="reception" onclick="teamTab('reception')">استقبال الطلبات والتواصل</button>
         <button data-tab="sales" onclick="teamTab('sales')">المبيعات</button>
         <button data-tab="shipping" onclick="teamTab('shipping')">الشحن</button>
         <button data-tab="accounts" onclick="teamTab('accounts')">الحسابات</button>
@@ -549,32 +548,21 @@ const FIREBASE_CONFIG = {
           </table></div>
         </div>
 
-        <!-- ===== قسم: الطلبات الجديدة ===== -->
-        <div id="team-tab-new">
-          <h2>طلبات جديدة</h2>
-          <div class="sub">اختر اسمك من القايمة واضغط "استلام الطلب" — الطلب هيفضل باسمك لحد ما يتقفل.</div>
+        <!-- ===== قسم: استقبال الطلبات والتواصل (مدموج) ===== -->
+        <div id="team-tab-reception">
+          <h2>استقبال الطلبات والتواصل <span id="deptLeadHint-reception" class="meta" style="font-size:11.5px;color:#8a8a8a;display:none"></span></h2>
+          <div class="sub">اختر اسمك واستلم الطلب الجديد، وبعدها تواصل مع العميل وأكّد الطلب أو ألغيه بسبب — كل ده في نفس المكان.</div>
           <div class="filters">
-            <select id="deptNewFilterCategory" onchange="renderDeptNew()"><option value="">كل أنواع المنتجات</option></select>
+            <select id="deptReceptionFilterCategory" onchange="renderDeptReception()"><option value="">كل أنواع المنتجات</option></select>
+            <select id="deptReceptionFilterEmployee" onchange="renderDeptReception()"><option value="">كل الموظفين</option></select>
           </div>
-          <div id="teamNewOrders"></div>
-          <div class="empty" id="teamNewEmpty" style="display:none;color:#8a8a8a">مفيش طلبات جديدة دلوقتي.</div>
-        </div>
-
-        <!-- ===== قسم: التواصل ===== -->
-        <div id="team-tab-contact" style="display:none">
-          <h2>التواصل</h2>
-          <div class="sub">الطلبات اللي بانتظار تأكيد أو إلغاء مع العميل.</div>
-          <div class="filters">
-            <select id="deptContactFilterCategory" onchange="renderDeptContact()"><option value="">كل أنواع المنتجات</option></select>
-            <select id="deptContactFilterEmployee" onchange="renderDeptContact()"><option value="">كل الموظفين</option></select>
-          </div>
-          <div id="teamContactOrders"></div>
-          <div class="empty" id="teamContactEmpty" style="display:none;color:#8a8a8a">مفيش طلبات في التواصل دلوقتي.</div>
+          <div id="teamReceptionOrders"></div>
+          <div class="empty" id="teamReceptionEmpty" style="display:none;color:#8a8a8a">مفيش طلبات في الاستقبال أو التواصل دلوقتي.</div>
         </div>
 
         <!-- ===== قسم: الشحن ===== -->
         <div id="team-tab-shipping" style="display:none">
-          <h2>الشحن</h2>
+          <h2>الشحن <span id="deptLeadHint-shipping" class="meta" style="font-size:11.5px;color:#8a8a8a;display:none"></span></h2>
           <div class="sub">الطلبات الجاهزة للشحن — اختر شركة الشحن وسلّمها.</div>
           <div class="filters">
             <select id="deptShippingFilterCategory" onchange="renderDeptShipping()"><option value="">كل أنواع المنتجات</option></select>
@@ -590,7 +578,7 @@ const FIREBASE_CONFIG = {
             <button class="btn btn-copper btn-sm" onclick="openProductModal()">+ إضافة منتج</button>
           </div>
           <div class="table-wrap"><table class="data">
-            <thead><tr><th>المنتج</th><th>النوع - الصنف</th><th>السعر</th><th>المخزون</th><th></th></tr></thead>
+            <thead><tr><th>المنتج</th><th>النوع - الصنف</th><th>السعر</th><th>المخزون</th><th>المحجوز</th><th>المتاح للبيع</th><th>المباع</th><th>المرتجع</th><th>تنبيه</th><th></th></tr></thead>
             <tbody id="teamProductsTable"></tbody>
           </table></div>
         </div>
@@ -602,6 +590,7 @@ const FIREBASE_CONFIG = {
             <button class="active" data-wh="purchases" onclick="warehouseTab('purchases')">المشتريات والفواتير</button>
             <button data-wh="suppliers" onclick="warehouseTab('suppliers')">الموردين</button>
             <button data-wh="items" onclick="warehouseTab('items')">الأصناف</button>
+            <button data-wh="movements" onclick="warehouseTab('movements')">حركة المخزون</button>
           </div>
 
           <div id="wh-tab-purchases">
@@ -664,10 +653,21 @@ const FIREBASE_CONFIG = {
               <tbody id="itemTypesTable"></tbody>
             </table></div>
           </div>
+
+          <div id="wh-tab-movements" style="display:none">
+            <div class="section-head" style="margin-bottom:14px">
+              <h3 style="color:#fff;font-size:15px">حركة المخزون</h3>
+            </div>
+            <div class="sub">كل حركة على المخزون (حجز، بيع، تحرير حجز، تسوية يدوية، شراء) — مرتبة من الأحدث للأقدم.</div>
+            <div class="table-wrap"><table class="data">
+              <thead><tr><th>التاريخ</th><th>النوع</th><th>المنتج</th><th>الكمية</th><th>رقم الطلب</th><th>الموظف</th><th>السبب</th></tr></thead>
+              <tbody id="inventoryMovementsTable"></tbody>
+            </table></div>
+          </div>
         </div>
         <!-- ===== قسم: المبيعات (تجهيز الطلبات المؤكدة) ===== -->
         <div id="team-tab-sales" style="display:none">
-          <h2>المبيعات</h2>
+          <h2>المبيعات <span id="deptLeadHint-sales" class="meta" style="font-size:11.5px;color:#8a8a8a;display:none"></span></h2>
           <div class="sub">الطلبات المؤكدة من قسم التواصل، جهّزها ثم حوّلها لقسم الشحن.</div>
           <div class="filters">
             <select id="deptSalesFilterCategory" onchange="renderDeptSales()"><option value="">كل أنواع المنتجات</option></select>
@@ -730,7 +730,7 @@ const FIREBASE_CONFIG = {
           <div class="empty" id="teamCustomersEmpty" style="display:none;color:#8a8a8a">لا يوجد عملاء مطابقين لهذا الفلتر.</div>
         </div>
         <div id="team-tab-accounts" style="display:none">
-          <h2>الحسابات</h2>
+          <h2>الحسابات <span id="deptLeadHint-accounts" class="meta" style="font-size:11.5px;color:#8a8a8a;display:none"></span></h2>
           <div class="sub">متابعة تحصيل مبالغ الطلبات (الدفع عند الاستلام) من شركات الشحن، والرصيد المالي مع كل شركة.</div>
           <div style="display:flex;gap:14px;flex-wrap:wrap;margin:16px 0 20px">
             <div class="ledger-card debit">
@@ -801,6 +801,13 @@ const FIREBASE_CONFIG = {
           </div>
           <div class="team-panel">
             <div id="rolesList"></div>
+          </div>
+          <div class="section-head" style="margin:26px 0 14px">
+            <h2 style="color:#fff">مسؤولو الأقسام</h2>
+          </div>
+          <div class="sub">مسؤول القسم منفصل عن "الموظف المستلم" لكل طلب — ده للمتابعة والتقارير العامة على مستوى القسم كله.</div>
+          <div class="team-panel">
+            <div id="departmentLeadsList"></div>
           </div>
           <div class="section-head" style="margin:26px 0 14px">
             <h2 style="color:#fff">أسماء موظفي استلام الطلبات</h2>
@@ -983,6 +990,7 @@ const FIREBASE_CONFIG = {
       <div class="field"><label>السعر الأساسي (قطعة واحدة) (ج.م)</label><input type="number" id="pPrice" min="0" step="0.01" required></div>
       <div class="field"><label>السعر قبل الخصم (اختياري — لإظهار شارة تخفيض)</label><input type="number" id="pCompareAt" min="0" step="0.01" placeholder="مثال: 500"></div>
       <div class="field"><label>المخزون المتاح</label><input type="number" id="pStock" min="0" step="1" required></div>
+      <div class="field"><label>حد المخزون المنخفض (تنبيه ⚠️ لما المتاح للبيع يوصله أو أقل)</label><input type="number" id="pLowStock" min="0" step="1" placeholder="افتراضي: 5"></div>
       <div class="field"><label>الألوان المتاحة (افصل بينها بفاصلة ،)</label><input type="text" id="pColors" placeholder="مثال: أسود، كحلي، بني"></div>
       <div class="field">
         <label>صور المنتج (ارفع حتى 5 صور — هيتم إضافة لوجو ZARO عليها تلقائيًا)</label>
@@ -1080,21 +1088,144 @@ function stageBadgeHtml(status){
   return `<span class="stage-badge st-${status||'new'}">${esc(stageLabel(status))}</span>`;
 }
 
-/* أقسام لوحة الفريق — كل قسم بيمثل مرحلة (أو أكتر) من مراحل الطلب */
+/* أقسام لوحة الفريق — كل قسم بيمثل مرحلة (أو أكتر) من مراحل الطلب.
+   "طلب جديد" و"التواصل" مدموجين وظيفيًا في قسم واحد: استقبال الطلبات والتواصل. */
 const DEPARTMENTS = [
-  {key:'new',      label:'الطلبات الجديدة', statuses:['new']},
-  {key:'contact',  label:'التواصل',         statuses:['contacting']},
-  {key:'sales',    label:'المبيعات',        statuses:['confirmed','preparing']},
-  {key:'shipping', label:'الشحن',           statuses:['ready_ship','shipped']},
-  {key:'accounts', label:'الحسابات',        statuses:['accounts']},
+  {key:'reception', label:'استقبال الطلبات والتواصل', statuses:['new','contacting']},
+  {key:'sales',     label:'المبيعات',        statuses:['confirmed','preparing']},
+  {key:'shipping',  label:'الشحن',           statuses:['ready_ship','shipped']},
+  {key:'accounts',  label:'الحسابات',        statuses:['accounts']},
 ];
 function deptForStatus(status){
   const d = DEPARTMENTS.find(d=>d.statuses.includes(status));
   return d ? d.label : (stageLabel(status));
 }
 
+/* ============================================================
+   Timeline — سجل زمني موحّد لكل حركة تحصل للطلب (استلام/تواصل/تأكيد/تجهيز/
+   شحن/تسليم/تحصيل...إلخ). كل حركة بتتسجل بعنصر واحد جوه مصفوفة timeline
+   في نفس مستند الطلب، وده اللي هيسمح لاحقًا بحساب المدة بين أي مرحلتين
+   (مثلاً: وقت الاستلام لحد أول تواصل، أو التأكيد لحد بدء التجهيز).
+   ملحوظة: مينفعش نستخدم serverTimestamp() جوه عنصر Array (قيد من Firestore)،
+   فبنستخدم توقيت الجهاز بصيغة ISO زي ما هو متبع بالفعل في returnHistory. */
+function timelineEntry(action, status, note){
+  return {
+    action: action || '',
+    status: status || null,
+    department: status ? deptForStatus(status) : null,
+    byName: currentUser?.displayName || currentUser?.email || 'عميل',
+    byEmail: (currentUser?.email||'').toLowerCase() || null,
+    note: note || null,
+    at: new Date().toISOString(),
+  };
+}
+function orderTimelineList(o){
+  return Array.isArray(o.timeline) ? o.timeline.slice().sort((a,b)=> new Date(a.at) - new Date(b.at)) : [];
+}
+function timelineHtml(o){
+  const list = orderTimelineList(o);
+  if(!list.length) return '<div style="color:#8a8a8a;font-size:12px;padding:6px 0">لا يوجد سجل حركة مسجّل لهذا الطلب بعد.</div>';
+  return list.map(t=>`
+    <div style="border-bottom:1px solid var(--line-dark);padding:7px 0;font-size:12px">
+      <b style="color:#fff">${esc(t.action||'—')}</b>${t.department? ' <span style="color:#8a8a8a">— '+esc(t.department)+'</span>' : ''}
+      <br><span style="color:#8a8a8a">${esc(t.byName||'—')} · ${fmtDate(t.at)}</span>
+      ${t.note? '<br><span style="color:var(--rose)">'+esc(t.note)+'</span>' : ''}
+    </div>`).join('');
+}
+function toggleTimelinePanel(orderId){
+  const panel = document.getElementById('timeline-'+orderId);
+  if(!panel) return;
+  if(panel.style.display==='block'){ panel.style.display='none'; return; }
+  const o = teamAllOrdersCache.find(x=>x.id===orderId) || (typeof allOrdersCache!=='undefined' ? allOrdersCache.find(x=>x.id===orderId) : null);
+  panel.innerHTML = o ? timelineHtml(o) : 'تعذر تحميل السجل.';
+  panel.style.display='block';
+}
+
+/* ============================================================
+   حركة المخزون: حجز عند التأكيد، خصم فعلي عند التجهيز/الجاهزية للشحن،
+   وتحرير الحجز عند الإلغاء أو الرجوع لمرحلة سابقة. كل حركة بتتسجل في
+   inventoryMovements عشان تكون قابلة للتتبع بالكامل (تاريخ، منتج، كمية،
+   نوع الحركة، الموظف، السبب، رقم الطلب).
+
+   الحماية من التكرار: كل عملية حجز/خصم/تحرير بتتم جوه Transaction واحدة،
+   وبتتحقق من حالة الطلب و/أو Flags (stockReserved / stockDeducted) قبل
+   ما تنفذ أي تعديل — فمينفعش نفس الحجز أو الخصم يتكرر حتى لو المستخدم
+   ضغط الزرار أكتر من مرة بسرعة أو عمل Refresh للصفحة.
+   ============================================================ */
+async function logInventoryMovement(type, productId, productName, qty, orderId, reason){
+  try{
+    await db.collection('inventoryMovements').add({
+      type, productId: productId||null, productName: productName||null, qty,
+      orderId: orderId||null,
+      byName: currentUser?.displayName||currentUser?.email||'—',
+      byEmail: (currentUser?.email||'').toLowerCase()||null,
+      reason: reason||null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  }catch(e){ console.error('logInventoryMovement', e); }
+}
+/* حجز الكمية عند تأكيد الطلب — جوه نفس Transaction بتاعة confirmOrderAction */
+async function reserveOrderItemsInTx(t, order, orderId){
+  const items = (order.items||[]).filter(it=>it.productId && it.qty>0);
+  const productRefs = items.map(it=>db.collection('products').doc(it.productId));
+  const productSnaps = await Promise.all(productRefs.map(r=>t.get(r)));
+  productSnaps.forEach((snap, idx)=>{
+    if(!snap.exists) return; // منتج محذوف — نتجاهله بأمان بدون Crash، ونكمل باقي الأصناف
+    const p = snap.data();
+    t.update(productRefs[idx], { reserved: Number(p.reserved||0) + (items[idx].qty||0) });
+  });
+  return items; // هنستخدمها بعد نجاح الـ Transaction لتسجيل حركة المخزون
+}
+/* خصم فعلي من المخزون + تحرير الحجز المقابل له، لحظة ما الطلب يخرج فعليًا من
+   المخزن جاهزًا للشحن */
+async function deductOrderItemsInTx(t, order, orderId){
+  const items = (order.items||[]).filter(it=>it.productId && it.qty>0);
+  const productRefs = items.map(it=>db.collection('products').doc(it.productId));
+  const productSnaps = await Promise.all(productRefs.map(r=>t.get(r)));
+  productSnaps.forEach((snap, idx)=>{
+    if(!snap.exists) return;
+    const p = snap.data();
+    const qty = items[idx].qty||0;
+    t.update(productRefs[idx], {
+      stock: Math.max(0, Number(p.stock||0) - qty),
+      reserved: Math.max(0, Number(p.reserved||0) - qty),
+      soldCount: Number(p.soldCount||0) + qty,
+    });
+  });
+  return items;
+}
+/* تحرير حجز بدون خصم فعلي — للإلغاء أو الرجوع لمرحلة سابقة قبل ما الطلب يوصل لمرحلة التجهيز النهائي */
+async function releaseReservationInTx(t, order, orderId){
+  const items = (order.items||[]).filter(it=>it.productId && it.qty>0);
+  const productRefs = items.map(it=>db.collection('products').doc(it.productId));
+  const productSnaps = await Promise.all(productRefs.map(r=>t.get(r)));
+  productSnaps.forEach((snap, idx)=>{
+    if(!snap.exists) return;
+    const p = snap.data();
+    t.update(productRefs[idx], { reserved: Math.max(0, Number(p.reserved||0) - (items[idx].qty||0)) });
+  });
+  return items;
+}
+
+/* أقسام صلاحيات الموظفين — تتحكم في التابات اللي يقدر عضو الفريق يشوفها/يتصرف فيها من لوحة
+   الإدارة. مستقلة عن DEPARTMENTS اللي بتوصف مرحلة الطلب، لأن قسم "المبيعات والمخزن والتجهيز"
+   بيشمل كمان تابات مش مرحلة طلب (المنتجات، المخزن، تقرير المبيعات). */
+const STAFF_DEPARTMENTS = [
+  {key:'reception', label:'استقبال الطلبات والتواصل'},
+  {key:'sales',     label:'المبيعات والمخزن والتجهيز', tabs:['sales','products','purchases','salesReport']},
+  {key:'shipping',  label:'الشحن'},
+  {key:'accounts',  label:'الحسابات'},
+];
+STAFF_DEPARTMENTS.forEach(d=>{ if(!d.tabs) d.tabs=[d.key]; });
+/* التابات دي متاحة لأي عضو فريق بغض النظر عن أقسامه — نظرة عامة بدون صلاحيات تعديل حساسة */
+const STAFF_SHARED_TABS = ['all','customers'];
+
 let currentUser = null;   // firebase auth user
 let currentRole = 'customer'; // customer | team | admin
+/* null = بدون تقييد (إدارة، أو عضو فريق قديم اتضاف قبل نظام الأقسام — يفضل شغال زي قبل كده تمامًا)
+   array = مقيد بأقسام معينة اختارها المدير من لوحة الإدارة */
+let currentStaffDepts = null;
+let departmentLeadsCache = {}; // {reception:'اسم', sales:'اسم', shipping:'اسم', accounts:'اسم'}
 let products = [];
 let cart = [];             // [{productId,name,price,qty}]
 let pendingCheckout = false;
@@ -1200,6 +1331,7 @@ function goInternal(view){
     document.getElementById('view-store').classList.add('active');
   } else {
     document.getElementById('view-'+view).classList.add('active');
+    if(view==='team') applyTeamDeptVisibility();
   }
   document.querySelectorAll('nav.links button').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
   if(view==='my-orders') renderMyOrdersGate();
@@ -1271,8 +1403,12 @@ auth.onAuthStateChanged(async user=>{
     // تحقق من صلاحية المستخدم
     try{
       const roleDoc = await db.collection('roles').doc((user.email||'').toLowerCase()).get();
-      currentRole = roleDoc.exists ? (roleDoc.data().role||'customer') : 'customer';
-    }catch(e){ currentRole='customer'; }
+      const roleData = roleDoc.exists ? roleDoc.data() : null;
+      currentRole = roleData ? (roleData.role||'customer') : 'customer';
+      /* لو مفيش حقل departments (عضو مضاف قبل نظام الأقسام) يفضل عنده كل الأقسام زي قبل كده تمامًا،
+         بدون ما نضطر لأي Migration على بيانات الفريق القديمة */
+      currentStaffDepts = (currentRole==='team' && Array.isArray(roleData?.departments)) ? roleData.departments : null;
+    }catch(e){ currentRole='customer'; currentStaffDepts=null; }
     checkCustomerProfile(user);
   } else {
     authArea.innerHTML = `<button class="g-btn" onclick="signIn()" style="padding:8px 12px;font-size:13px">
@@ -1311,6 +1447,8 @@ function refreshRoleBoundListeners(){
   if(unsubCustomers){unsubCustomers();unsubCustomers=null;}
   if(unsubShippingCompanies){unsubShippingCompanies();unsubShippingCompanies=null;}
   if(unsubEmployees){unsubEmployees();unsubEmployees=null;}
+  if(unsubDepartmentLeads){unsubDepartmentLeads();unsubDepartmentLeads=null;}
+  if(unsubInventoryMovements){unsubInventoryMovements();unsubInventoryMovements=null;}
 
   if(currentRole==='team' || currentRole==='admin'){
     listenTeamOrders();
@@ -1319,6 +1457,8 @@ function refreshRoleBoundListeners(){
     listenSuppliers();
     listenShippingCompanies();
     listenEmployees();
+    listenDepartmentLeads();
+    listenInventoryMovements();
   }
   if(currentRole==='admin'){
     listenAdminOrders();
@@ -1986,6 +2126,7 @@ async function submitOrder(e){
     claimedByEmail: null,
     claimedByName: null,
     shippingCompany: null,
+    timeline: [timelineEntry('إنشاء الطلب', 'new')],
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
   };
@@ -2051,7 +2192,12 @@ function renderCustomerOrderCard(o){
     </div>`;
 }
 async function customerConfirm(orderId, status){
-  await db.collection('orders').doc(orderId).update({status, updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  const label = status==='accounts' ? 'تأكيد الاستلام من العميل — انتقل للحسابات' : 'طلب إرجاع من العميل';
+  await db.collection('orders').doc(orderId).update({
+    status,
+    timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry(label, status)),
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
+  });
   toast(status==='accounts' ? 'تم تأكيد الاستلام، شكرًا لك 🌿' : 'تم تسجيل طلب الإرجاع');
 }
 
@@ -2059,15 +2205,86 @@ async function customerConfirm(orderId, status){
    لوحة الفريق
    ============================================================ */
 function teamTab(name){
-  ['new','contact','sales','shipping','accounts','all','customers','products','purchases','salesReport'].forEach(t=>{
+  ['reception','sales','shipping','accounts','all','customers','products','purchases','salesReport'].forEach(t=>{
     document.getElementById('team-tab-'+t).style.display = (t===name)?'block':'none';
   });
   document.querySelectorAll('#view-team .dash-tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
   if(name==='accounts') renderAccountsTab();
   if(name==='salesReport') renderSalesReport();
 }
+
+/* إخفاء تابات لوحة الفريق اللي مش من صلاحيات العضو الحالي، وتحويله لأول تاب متاح له.
+   الإدارة، وأي عضو فريق قديم بدون تحديد أقسام (currentStaffDepts === null)، بيشوفوا كل التابات
+   زي ما كانوا شغالين بالظبط قبل نظام الأقسام ده — مفيش أي كسر لوظيفة موجودة. */
+function applyTeamDeptVisibility(){
+  const buttons = document.querySelectorAll('#view-team .dash-tabs button');
+  if(currentRole==='admin' || !currentStaffDepts){
+    buttons.forEach(b=>{ b.style.display=''; });
+    return;
+  }
+  const allowedTabs = new Set(STAFF_SHARED_TABS);
+  STAFF_DEPARTMENTS.forEach(d=>{ if(currentStaffDepts.includes(d.key)) d.tabs.forEach(t=>allowedTabs.add(t)); });
+  let activeStillAllowed = false;
+  let firstAllowed = null;
+  buttons.forEach(b=>{
+    const allowed = allowedTabs.has(b.dataset.tab);
+    b.style.display = allowed ? '' : 'none';
+    if(allowed && !firstAllowed) firstAllowed = b.dataset.tab;
+    if(allowed && b.classList.contains('active')) activeStillAllowed = true;
+  });
+  if(!activeStillAllowed && firstAllowed) teamTab(firstAllowed);
+}
+
+/* ============================================================
+   مسؤول القسم — عضو واحد (اختياري) يتم تحديده إداريًا لكل قسم للمتابعة
+   والتقارير، ومنفصل تمامًا عن "الموظف المستلم" لكل طلب على حدة. لو
+   اختلفا بيتحفظوا الاثنين: مسؤول القسم بيتحفظ في settings/departmentLeads،
+   والموظف المستلم فاضل زي ما هو (claimedByName) جوه كل طلب.
+   ============================================================ */
+let unsubDepartmentLeads = null;
+function listenDepartmentLeads(){
+  if(unsubDepartmentLeads) unsubDepartmentLeads();
+  unsubDepartmentLeads = db.collection('settings').doc('departmentLeads').onSnapshot(doc=>{
+    departmentLeadsCache = doc.exists ? (doc.data()||{}) : {};
+    renderDepartmentLeadsPanel();
+    renderDeptLeadHints();
+  }, err=>console.error('listenDepartmentLeads', err));
+}
+function renderDepartmentLeadsPanel(){
+  const wrap = document.getElementById('departmentLeadsList');
+  if(!wrap) return;
+  wrap.innerHTML = STAFF_DEPARTMENTS.map(d=>`
+    <div class="role-row">
+      <span style="color:#fff;font-weight:700">${esc(d.label)}</span>
+      <span style="display:flex;align-items:center;gap:8px">
+        <select onchange="setDepartmentLead('${d.key}', this.value)">
+          ${employeeOptionsHtml('بدون مسؤول قسم').replace('<option value="__new__">+ إضافة اسم جديد…</option>','')}
+        </select>
+      </span>
+    </div>`).join('');
+  STAFF_DEPARTMENTS.forEach(d=>{
+    const sel = wrap.querySelector(`select[onchange="setDepartmentLead('${d.key}', this.value)"]`);
+    if(sel && departmentLeadsCache[d.key]) sel.value = departmentLeadsCache[d.key];
+  });
+}
+async function setDepartmentLead(deptKey, name){
+  await db.collection('settings').doc('departmentLeads').set({[deptKey]: name||null}, {merge:true});
+  toast('تم تحديث مسؤول القسم');
+}
+/* يعرض تلميح "مسؤول القسم: فلان" جنب عنوان كل قسم في لوحة الفريق، بدون ما يخفي اسم
+   الموظف المستلم لكل طلب على حدة (ده فاضل زي ما هو جوه كل كارت طلب) */
+function renderDeptLeadHints(){
+  const map = {reception:'deptLeadHint-reception', sales:'deptLeadHint-sales', shipping:'deptLeadHint-shipping', accounts:'deptLeadHint-accounts'};
+  Object.entries(map).forEach(([key,elId])=>{
+    const el = document.getElementById(elId);
+    if(!el) return;
+    const lead = departmentLeadsCache[key];
+    el.textContent = lead ? ('مسؤول القسم: '+lead) : '';
+    el.style.display = lead ? 'inline' : 'none';
+  });
+}
 function warehouseTab(name){
-  ['purchases','suppliers','items'].forEach(t=>{
+  ['purchases','suppliers','items','movements'].forEach(t=>{
     document.getElementById('wh-tab-'+t).style.display = (t===name)?'block':'none';
   });
   document.querySelectorAll('.wh-subtabs button').forEach(b=>b.classList.toggle('active', b.dataset.wh===name));
@@ -2181,8 +2398,7 @@ function listenTeamOrders(){
   unsubOrdersTeam = db.collection('orders').orderBy('createdAt','desc').onSnapshot(snap=>{
     teamAllOrdersCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     renderTeamAllOrders();
-    renderDeptNew();
-    renderDeptContact();
+    renderDeptReception();
     renderDeptSales();
     renderDeptShipping();
     renderSalesReport();
@@ -2195,7 +2411,7 @@ let teamAllOrdersCache = [];
 function refreshCategoryFilterSelects(){
   const opts = '<option value="">كل أنواع المنتجات</option>' + Object.entries(GENDER_LABELS)
     .map(([gk,gl])=>`<optgroup label="${gl}">${itemTypesForGender(gk).map(t=>`<option value="${t.id}">${esc(t.label)}</option>`).join('')}</optgroup>`).join('');
-  ['teamAllFilterCategory','filterCategory','deptNewFilterCategory','deptContactFilterCategory','deptSalesFilterCategory','deptShippingFilterCategory'].forEach(id=>{
+  ['teamAllFilterCategory','filterCategory','deptReceptionFilterCategory','deptSalesFilterCategory','deptShippingFilterCategory'].forEach(id=>{
     const sel = document.getElementById(id);
     if(!sel) return;
     const current = sel.value;
@@ -2205,7 +2421,7 @@ function refreshCategoryFilterSelects(){
 }
 function refreshEmployeeFilterSelects(){
   const opts = '<option value="">كل الموظفين</option>' + employeesCache.map(e=>`<option value="${esc(e.name)}">${esc(e.name)}</option>`).join('');
-  ['teamAllFilterEmployee','filterEmployee','deptContactFilterEmployee','deptSalesFilterEmployee','deptShippingFilterEmployee','deptAccountsFilterEmployee'].forEach(id=>{
+  ['teamAllFilterEmployee','filterEmployee','deptReceptionFilterEmployee','deptSalesFilterEmployee','deptShippingFilterEmployee','deptAccountsFilterEmployee'].forEach(id=>{
     const sel = document.getElementById(id);
     if(!sel) return;
     const current = sel.value;
@@ -2252,21 +2468,13 @@ function ordersForDept(deptKey, catFilterId, empFilterId){
   });
 }
 
-/* ===== قسم: الطلبات الجديدة ===== */
-function renderDeptNew(){
-  const wrap = document.getElementById('teamNewOrders');
+/* ===== قسم: استقبال الطلبات والتواصل (مدموج) ===== */
+function renderDeptReception(){
+  const wrap = document.getElementById('teamReceptionOrders');
   if(!wrap) return;
-  const list = ordersForDept('new','deptNewFilterCategory',null);
-  document.getElementById('teamNewEmpty').style.display = list.length? 'none':'block';
-  wrap.innerHTML = list.map(o=>teamOrderCard(o,'new')).join('');
-}
-/* ===== قسم: التواصل ===== */
-function renderDeptContact(){
-  const wrap = document.getElementById('teamContactOrders');
-  if(!wrap) return;
-  const list = ordersForDept('contact','deptContactFilterCategory','deptContactFilterEmployee');
-  document.getElementById('teamContactEmpty').style.display = list.length? 'none':'block';
-  wrap.innerHTML = list.map(o=>teamOrderCard(o,'contact')).join('');
+  const list = ordersForDept('reception','deptReceptionFilterCategory','deptReceptionFilterEmployee');
+  document.getElementById('teamReceptionEmpty').style.display = list.length? 'none':'block';
+  wrap.innerHTML = list.map(o=>teamOrderCard(o,'reception')).join('');
 }
 /* ===== قسم: المبيعات ===== */
 function renderDeptSales(){
@@ -2289,44 +2497,80 @@ function renderDeptShipping(){
 async function returnOrderToStage(orderId, toStatus){
   const note = (prompt('سبب الرجوع (هيتسجل مع الطلب):')||'').trim();
   if(!note){ toast('لازم تكتب سبب الرجوع'); return; }
-  await db.collection('orders').doc(orderId).update({
-    status: toStatus,
-    lastReturnNote: note,
-    returnHistory: firebase.firestore.FieldValue.arrayUnion({toStatus, note, byName: currentUser?.displayName||currentUser?.email||'', at: new Date().toISOString()}),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-  });
-  toast('تم إرجاع الطلب لمرحلة: '+stageLabel(toStatus));
+  const orderRef = db.collection('orders').doc(orderId);
+  let releasedItems = [];
+  try{
+    await db.runTransaction(async t=>{
+      const orderSnap = await t.get(orderRef);
+      if(!orderSnap.exists) throw new Error('الطلب غير موجود');
+      const order = orderSnap.data();
+      const patch = {
+        status: toStatus,
+        lastReturnNote: note,
+        returnHistory: firebase.firestore.FieldValue.arrayUnion({toStatus, note, byName: currentUser?.displayName||currentUser?.email||'', at: new Date().toISOString()}),
+        timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry('رجوع لمرحلة: '+stageLabel(toStatus), toStatus, note)),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      };
+      /* لو كان محجوز وبعدلسه ما اتخصمش فعليًا من المخزون، نحرر الحجز عشان
+         مايفضلش "محجوز" لطلب رجع لمرحلة سابقة (منع تسريب حجوزات وهمية) */
+      if(order.stockReserved && !order.stockDeducted){
+        releasedItems = await releaseReservationInTx(t, order, orderId);
+        patch.stockReserved = false;
+      }
+      t.update(orderRef, patch);
+    });
+    releasedItems.forEach(it=>logInventoryMovement('تحرير حجز', it.productId, it.name, it.qty, orderId, 'رجوع الطلب لمرحلة: '+stageLabel(toStatus)));
+    toast('تم إرجاع الطلب لمرحلة: '+stageLabel(toStatus));
+  }catch(err){ toast(err.message||'تعذر إرجاع الطلب'); }
 }
 async function cancelOrderWithNote(orderId){
   const note = (prompt('سبب الإلغاء (هيتسجل مع الطلب):')||'').trim();
   if(!note){ toast('لازم تكتب سبب الإلغاء'); return; }
-  await db.collection('orders').doc(orderId).update({
-    status:'returned',
-    lastReturnNote: note,
-    returnHistory: firebase.firestore.FieldValue.arrayUnion({toStatus:'returned', note, byName: currentUser?.displayName||currentUser?.email||'', at: new Date().toISOString()}),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-  });
-  toast('تم إلغاء الطلب');
+  const orderRef = db.collection('orders').doc(orderId);
+  let releasedItems = [];
+  try{
+    await db.runTransaction(async t=>{
+      const orderSnap = await t.get(orderRef);
+      if(!orderSnap.exists) throw new Error('الطلب غير موجود');
+      const order = orderSnap.data();
+      const patch = {
+        status:'returned',
+        lastReturnNote: note,
+        returnHistory: firebase.firestore.FieldValue.arrayUnion({toStatus:'returned', note, byName: currentUser?.displayName||currentUser?.email||'', at: new Date().toISOString()}),
+        timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry('إلغاء الطلب', 'returned', note)),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      };
+      if(order.stockReserved && !order.stockDeducted){
+        releasedItems = await releaseReservationInTx(t, order, orderId);
+        patch.stockReserved = false;
+      }
+      t.update(orderRef, patch);
+    });
+    releasedItems.forEach(it=>logInventoryMovement('تحرير حجز (إلغاء)', it.productId, it.name, it.qty, orderId, 'إلغاء الطلب: '+note));
+    toast('تم إلغاء الطلب');
+  }catch(err){ toast(err.message||'تعذر إلغاء الطلب'); }
 }
 
 function teamOrderCard(o, dept){
   let actions = '';
-  if(dept==='new'){
-    actions = `
-      <select id="recv-${o.id}">${employeeOptionsHtml('اختر اسمك')}</select>
-      <button class="btn btn-copper btn-sm" onclick="claimOrder('${o.id}')">استلام الطلب</button>`;
-  } else if(dept==='contact'){
-    actions = `
-      <button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','confirmed')">تأكيد الطلب</button>
-      <button class="btn btn-outline btn-sm" onclick="cancelOrderWithNote('${o.id}')">إلغاء الطلب</button>`;
+  if(dept==='reception'){
+    if(o.status==='new'){
+      actions = `
+        <select id="recv-${o.id}">${employeeOptionsHtml('اختر اسمك')}</select>
+        <button class="btn btn-copper btn-sm" onclick="claimOrder('${o.id}')">استلام الطلب</button>`;
+    } else if(o.status==='contacting'){
+      actions = `
+        <button class="btn btn-emerald btn-sm" onclick="confirmOrderAction('${o.id}')">تأكيد الطلب</button>
+        <button class="btn btn-outline btn-sm" onclick="cancelOrderWithNote('${o.id}')">إلغاء الطلب</button>`;
+    }
   } else if(dept==='sales'){
     if(o.status==='confirmed'){
       actions = `
-        <button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','preparing')">بدء التجهيز</button>
+        <button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','preparing','بدء التجهيز')">بدء التجهيز</button>
         <button class="btn btn-outline btn-sm" onclick="returnOrderToStage('${o.id}','contacting')">رجوع للتواصل</button>`;
     } else if(o.status==='preparing'){
       actions = `
-        <button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','ready_ship')">تحويل لقسم الشحن</button>
+        <button class="btn btn-emerald btn-sm" onclick="advanceToReadyShip('${o.id}')">تحويل لقسم الشحن</button>
         <button class="btn btn-outline btn-sm" onclick="returnOrderToStage('${o.id}','contacting')">رجوع للتواصل</button>`;
     }
   } else if(dept==='shipping'){
@@ -2337,7 +2581,7 @@ function teamOrderCard(o, dept){
         <button class="btn btn-outline btn-sm" onclick="returnOrderToStage('${o.id}','preparing')">رجوع للمبيعات</button>`;
     } else if(o.status==='shipped'){
       actions = `
-        <button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','delivered')">تم التسليم للعميل</button>
+        <button class="btn btn-emerald btn-sm" onclick="advanceOrder('${o.id}','delivered','تم التسليم للعميل')">تم التسليم للعميل</button>
         <button class="btn btn-outline btn-sm" onclick="returnOrderToStage('${o.id}','preparing')">رجوع للمبيعات</button>`;
     }
   } else if(dept==='accounts'){
@@ -2368,8 +2612,10 @@ function teamOrderCard(o, dept){
       <div class="actions">
         ${actions}
         <button class="btn btn-outline btn-sm" onclick="loadCustomerPanel('${o.id}','${esc(o.customerUid||'')}')">بيانات العميل كاملة</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleTimelinePanel('${o.id}')">سجل حركة الطلب</button>
       </div>
       <div class="cust-panel" id="custpanel-${o.id}" style="display:none"></div>
+      <div class="cust-panel" id="timeline-${o.id}" style="display:none"></div>
     </div>`;
 }
 
@@ -2438,14 +2684,72 @@ async function claimOrder(orderId){
         status:'contacting',
         claimedByEmail:(currentUser.email||'').toLowerCase(),
         claimedByName: name,
+        timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry('استلام الطلب — استلمه: '+name, 'contacting')),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
     });
     toast('استلم الطلب: '+name+' — ابدأ التواصل مع العميل');
   }catch(err){ toast(err.message); }
 }
-async function advanceOrder(orderId, status){
-  const patch = {status, updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+/* تأكيد الطلب من قسم استقبال الطلبات والتواصل — بيسجل الموظف ووقت التأكيد
+   بالإضافة لاسم الموظف المستلم (claimedByName) اللي فاضل زي ما هو */
+async function confirmOrderAction(orderId){
+  const orderRef = db.collection('orders').doc(orderId);
+  let reservedItems = [];
+  try{
+    await db.runTransaction(async t=>{
+      const orderSnap = await t.get(orderRef);
+      if(!orderSnap.exists) throw new Error('الطلب غير موجود');
+      const order = orderSnap.data();
+      /* حماية من الضغط المتكرر أو فتح الطلب في أكتر من تاب: لو الطلب مش في حالة
+         التواصل حاليًا (يعني اتأكد بالفعل)، منوقفش هنا تاني */
+      if(order.status!=='contacting') throw new Error('الطلب اتأكد بالفعل أو تغيّرت حالته');
+      reservedItems = await reserveOrderItemsInTx(t, order, orderId);
+      t.update(orderRef, {
+        status:'confirmed',
+        stockReserved: true,
+        confirmedByEmail:(currentUser.email||'').toLowerCase(),
+        confirmedByName: currentUser.displayName||currentUser.email,
+        confirmedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry('تأكيد الطلب — تم حجز الكمية من المخزون', 'confirmed')),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+    reservedItems.forEach(it=>logInventoryMovement('حجز', it.productId, it.name, it.qty, orderId, 'تأكيد الطلب'));
+    toast('تم تأكيد الطلب وحجز الكمية من المخزون — انتقل للمبيعات والمخزن والتجهيز');
+  }catch(err){ toast(err.message||'تعذر تأكيد الطلب'); }
+}
+/* انتقال "انتهاء التجهيز — جاهز للشحن" — هنا بالظبط بيحصل الخصم الفعلي من
+   المخزون (مش مجرد حجز)، لأن المنتج فعليًا بيطلع من المخزن. محمي بالتحقق من
+   حالة الطلب جوه الـ Transaction عشان الخصم مايتكررش لو اتضغط الزرار مرتين */
+async function advanceToReadyShip(orderId){
+  const orderRef = db.collection('orders').doc(orderId);
+  let deductedItems = [];
+  try{
+    await db.runTransaction(async t=>{
+      const orderSnap = await t.get(orderRef);
+      if(!orderSnap.exists) throw new Error('الطلب غير موجود');
+      const order = orderSnap.data();
+      if(order.status!=='preparing') throw new Error('الطلب مش في مرحلة التجهيز حاليًا');
+      if(order.stockDeducted) throw new Error('تم خصم المخزون لهذا الطلب بالفعل');
+      deductedItems = await deductOrderItemsInTx(t, order, orderId);
+      t.update(orderRef, {
+        status:'ready_ship',
+        stockDeducted: true,
+        timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry('انتهاء التجهيز — جاهز للشحن (تم خصم الكمية من المخزون)', 'ready_ship')),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+    deductedItems.forEach(it=>logInventoryMovement('بيع', it.productId, it.name, -(it.qty), orderId, 'انتهاء التجهيز — جاهز للشحن'));
+    toast('تم تجهيز الطلب وخصم الكمية من المخزون — انتقل لقسم الشحن');
+  }catch(err){ toast(err.message||'تعذر إتمام التجهيز'); }
+}
+async function advanceOrder(orderId, status, actionLabel){
+  const patch = {
+    status,
+    timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry(actionLabel || ('انتقال إلى: '+stageLabel(status)), status)),
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
+  };
   await db.collection('orders').doc(orderId).update(patch);
   toast('تم تحديث الطلب: '+stageLabel(status));
 }
@@ -2458,7 +2762,9 @@ async function shipOrder(orderId){
   }
   if(!val){ toast('اختر شركة الشحن'); return; }
   await db.collection('orders').doc(orderId).update({
-    status:'shipped', shippingCompany: val, updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    status:'shipped', shippingCompany: val,
+    timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry('تسليم الطلب لشركة الشحن', 'shipped', 'الشركة: '+val)),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
   });
   toast('تم التسليم لشركة الشحن');
 }
@@ -2472,6 +2778,7 @@ async function markOrderCollected(orderId){
     collectedAt: firebase.firestore.FieldValue.serverTimestamp(),
     accountsByEmail: (currentUser.email||'').toLowerCase(),
     accountsByName: currentUser.displayName||currentUser.email,
+    timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry('تم التحصيل والإغلاق المالي', 'completed', o? ('المبلغ: '+money(o.total||0)) : null)),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
   });
   toast('تم إغلاق الطلب بعد التحصيل ✓');
@@ -2521,7 +2828,7 @@ function listenEmployees(){
     employeesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     renderEmployeesList();
     refreshEmployeeFilterSelects();
-    renderDeptNew();
+    renderDeptReception();
   }, err=>console.error('listenEmployees', err));
 }
 function employeeOptionsHtml(placeholder){
@@ -2555,23 +2862,39 @@ async function removeEmployee(id){
 function renderTeamProducts(){
   const tbody = document.getElementById('teamProductsTable');
   if(!tbody) return;
-  tbody.innerHTML = products.map(p=>`
+  tbody.innerHTML = products.map(p=>{
+    const stock = Number(p.stock||0);
+    const reserved = Number(p.reserved||0);
+    const available = Math.max(0, stock - reserved);
+    const sold = Number(p.soldCount||0);
+    const returned = Number(p.returnedCount||0);
+    const lowThreshold = Number(p.lowStockThreshold ?? 5);
+    const isLow = available <= lowThreshold;
+    return `
     <tr>
       <td>${esc(p.name)}</td>
       <td>${esc(GENDER_LABELS[p.gender]||'—')} — ${esc(itemTypeLabel(p.category))}</td>
       <td class="mono">${money(p.price)}</td>
-      <td class="mono">${p.stock}</td>
+      <td class="mono">${stock}</td>
+      <td class="mono">${reserved}</td>
+      <td class="mono" style="color:${isLow?'var(--rose)':'#7fd4bd'}">${available}</td>
+      <td class="mono">${sold}</td>
+      <td class="mono">${returned}</td>
+      <td>${isLow? '<span style="color:var(--rose);font-size:11.5px">⚠️ مخزون منخفض</span>' : ''}</td>
       <td style="display:flex;gap:6px">
         <button class="btn btn-outline btn-sm" onclick="openProductModal('${p.id}')">تعديل</button>
         <button class="btn btn-outline btn-sm" onclick="deleteProduct('${p.id}')">حذف</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 /* ============================================================
    المشتريات (وهنا بتتضاف الأصناف الجديدة)
    ============================================================ */
 let purchasesCache = [];
+let unsubInventoryMovements = null;
+let inventoryMovementsCache = [];
 function renderPurchaseGenderSelect(){
   const sel = document.getElementById('purchaseGender');
   if(!sel) return;
@@ -2584,6 +2907,27 @@ function listenPurchases(){
     purchasesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     renderPurchasesTable();
   });
+}
+function listenInventoryMovements(){
+  if(unsubInventoryMovements) unsubInventoryMovements();
+  unsubInventoryMovements = db.collection('inventoryMovements').orderBy('createdAt','desc').limit(300).onSnapshot(snap=>{
+    inventoryMovementsCache = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderInventoryMovementsTable();
+  }, err=>console.error('listenInventoryMovements', err));
+}
+function renderInventoryMovementsTable(){
+  const tbody = document.getElementById('inventoryMovementsTable');
+  if(!tbody) return;
+  tbody.innerHTML = inventoryMovementsCache.map(m=>`
+    <tr>
+      <td class="mono" style="font-size:11.5px">${fmtDate(m.createdAt)}</td>
+      <td>${esc(m.type||'—')}</td>
+      <td>${esc(m.productName||'—')}</td>
+      <td class="mono" style="color:${(m.qty||0)<0?'var(--rose)':'#7fd4bd'}">${m.qty>0?'+':''}${m.qty ?? '—'}</td>
+      <td class="mono" style="font-size:11px">${m.orderId? '#'+m.orderId.slice(0,6) : '—'}</td>
+      <td>${esc(m.byName||'—')}</td>
+      <td style="font-size:11.5px;color:#8a8a8a">${esc(m.reason||'')}</td>
+    </tr>`).join('') || `<tr><td colspan="7" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد حركات مخزون مسجّلة بعد</td></tr>`;
 }
 function renderPurchasesTable(){
   const tbody = document.getElementById('purchasesTable');
@@ -2721,6 +3065,7 @@ function openProductModal(id){
     document.getElementById('pPrice').value = p.price||0;
     document.getElementById('pCompareAt').value = p.compareAtPrice||'';
     document.getElementById('pStock').value = p.stock||0;
+    document.getElementById('pLowStock').value = (p.lowStockThreshold!=null) ? p.lowStockThreshold : '';
     const t = p.priceTiers||{};
     document.getElementById('pTier1').value = t[1]||'';
     document.getElementById('pTier2').value = t[2]||'';
@@ -2824,6 +3169,7 @@ async function submitProduct(e){
     4: Number(document.getElementById('pTier4').value)||basePrice,
     '5plus': Number(document.getElementById('pTier5').value)||basePrice,
   };
+  const newStock = Number(document.getElementById('pStock').value);
   const payload = {
     name: document.getElementById('pName').value.trim(),
     gender,
@@ -2833,7 +3179,8 @@ async function submitProduct(e){
     colors,
     price: basePrice,
     compareAtPrice: compareAt>basePrice ? compareAt : 0,
-    stock: Number(document.getElementById('pStock').value),
+    stock: newStock,
+    lowStockThreshold: document.getElementById('pLowStock').value!=='' ? Number(document.getElementById('pLowStock').value) : 5,
     image: images[0]||'',
     images,
     priceTiers: tiers,
@@ -2841,14 +3188,24 @@ async function submitProduct(e){
   };
   try{
     if(editingProductId){
+      const before = products.find(x=>x.id===editingProductId);
+      const oldStock = Number(before?.stock||0);
       await db.collection('products').doc(editingProductId).update(payload);
+      /* لو المدير غيّر رقم المخزون يدويًا من نموذج التعديل، ده تسوية يدوية بتتسجل في حركة المخزون */
+      if(before && newStock!==oldStock){
+        logInventoryMovement('تسوية يدوية', editingProductId, payload.name, newStock-oldStock, null, 'تعديل مباشر من نموذج المنتج ('+oldStock+' ← '+newStock+')');
+      }
       toast('تم حفظ تعديلات المنتج');
     } else {
       await db.collection('products').add({
         ...payload,
+        reserved: 0,
+        soldCount: 0,
+        returnedCount: 0,
         reviews: [],
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
+      if(newStock>0) logInventoryMovement('شراء (رصيد افتتاحي)', null, payload.name, newStock, null, 'إضافة منتج جديد');
       toast('تمت إضافة المنتج');
     }
     editingProductId = null;
@@ -2911,35 +3268,56 @@ function renderAdminOrders(){
           <button class="btn btn-outline btn-sm" onclick="adminSetOrderStatus('${o.id}')">تطبيق</button>
         </div>
       </td>
-      <td class="mono" style="font-size:11.5px">${fmtDate(o.updatedAt)}</td>
+      <td class="mono" style="font-size:11.5px">${fmtDate(o.updatedAt)}<br>
+        <button class="btn btn-outline btn-sm" style="margin-top:4px;padding:2px 6px;font-size:10px" onclick="toggleTimelinePanel('${o.id}')">سجل الحركة</button>
+        <div class="cust-panel" id="timeline-${o.id}" style="display:none;min-width:220px"></div>
+      </td>
     </tr>`).join('') || `<tr><td colspan="10" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد نتائج</td></tr>`;
 }
 async function adminSetOrderStatus(orderId){
   const sel = document.getElementById('revert-'+orderId);
   const status = sel.value;
   if(!confirm('تأكيد تحويل الطلب لمرحلة: '+stageLabel(status)+'؟')) return;
-  await db.collection('orders').doc(orderId).update({status, updatedAt: firebase.firestore.FieldValue.serverTimestamp()});
+  await db.collection('orders').doc(orderId).update({
+    status,
+    timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry('تعديل يدوي من الإدارة إلى: '+stageLabel(status), status)),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
   toast('تم تحديث مرحلة الطلب يدويًا: '+stageLabel(status));
 }
 
 function listenRoles(){
   unsubRoles = db.collection('roles').onSnapshot(snap=>{
     const list = snap.docs.map(d=>({email:d.id,...d.data()}));
-    document.getElementById('rolesList').innerHTML = list.map(r=>`
-      <div class="role-row">
-        <span>
-          <b style="color:#fff">${esc(r.name||r.email)}</b>
-          ${r.name? `<br><span style="color:#8a8a8a;font-size:11.5px">${esc(r.email)}</span>` : ''}
-        </span>
-        <span style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <select onchange="updateMemberRole('${esc(r.email)}', this.value)" style="background:var(--ink-2);border:1px solid var(--line-dark);color:#eaeaea;padding:5px 6px;border-radius:6px;font-size:11.5px">
-            <option value="team" ${r.role==='team'?'selected':''}>فريق العمل</option>
-            <option value="admin" ${r.role==='admin'?'selected':''}>إدارة</option>
-          </select>
-          <button class="btn btn-outline btn-sm" onclick="editMemberName('${esc(r.email)}','${esc(r.name||'')}')">تعديل الاسم</button>
-          <button class="btn btn-outline btn-sm" onclick="removeRole('${esc(r.email)}')">إزالة</button>
-        </span>
-      </div>`).join('') || `<div style="color:#8a8a8a;font-size:13px">لا يوجد أعضاء مضافين بعد.</div>`;
+    document.getElementById('rolesList').innerHTML = list.map(r=>{
+      const isRestricted = Array.isArray(r.departments);
+      const deptChips = r.role==='team' ? `
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
+          ${STAFF_DEPARTMENTS.map(d=>{
+            const active = !isRestricted || r.departments.includes(d.key);
+            return `<button type="button" class="btn btn-sm ${active?'btn-copper':'btn-outline'}" style="padding:3px 8px;font-size:10.5px" onclick="toggleMemberDepartment('${esc(r.email)}','${d.key}')">${esc(d.label)}</button>`;
+          }).join('')}
+        </div>
+        <div style="color:#8a8a8a;font-size:10.5px;margin-top:4px">${isRestricted? 'مقيد بالأقسام المفعّلة (بالنحاسي) فقط' : 'بدون تقييد — يشوف كل الأقسام (اضغط أي زر عشان تبدأ تقييده)'}</div>` : '';
+      return `
+      <div class="role-row" style="flex-direction:column;align-items:stretch;gap:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+          <span>
+            <b style="color:#fff">${esc(r.name||r.email)}</b>
+            ${r.name? `<br><span style="color:#8a8a8a;font-size:11.5px">${esc(r.email)}</span>` : ''}
+          </span>
+          <span style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <select onchange="updateMemberRole('${esc(r.email)}', this.value)" style="background:var(--ink-2);border:1px solid var(--line-dark);color:#eaeaea;padding:5px 6px;border-radius:6px;font-size:11.5px">
+              <option value="team" ${r.role==='team'?'selected':''}>فريق العمل</option>
+              <option value="admin" ${r.role==='admin'?'selected':''}>إدارة</option>
+            </select>
+            <button class="btn btn-outline btn-sm" onclick="editMemberName('${esc(r.email)}','${esc(r.name||'')}')">تعديل الاسم</button>
+            <button class="btn btn-outline btn-sm" onclick="removeRole('${esc(r.email)}')">إزالة</button>
+          </span>
+        </div>
+        ${deptChips}
+      </div>`;
+    }).join('') || `<div style="color:#8a8a8a;font-size:13px">لا يوجد أعضاء مضافين بعد.</div>`;
   });
 }
 function openRoleModal(){ document.getElementById('roleForm').reset(); document.getElementById('roleModalWrap').classList.add('active'); pushModalHistory(); }
@@ -2955,6 +3333,22 @@ async function submitRole(e){
 async function updateMemberRole(email, role){
   await db.collection('roles').doc(email).update({role});
   toast('تم تحديث صلاحية العضو');
+}
+/* أول ضغطة على أي زرار قسم بتحوّل العضو من "بدون تقييد" لمصفوفة صريحة (كل الأقسام
+   ما عدا اللي اتشال، أو اللي اتضاف بس لو كان بدون تقييد أصلًا) عشان تجربة الإدارة تكون بديهية */
+async function toggleMemberDepartment(email, deptKey){
+  const doc = await db.collection('roles').doc(email).get();
+  const data = doc.exists ? doc.data() : {};
+  let depts = Array.isArray(data.departments) ? data.departments.slice() : STAFF_DEPARTMENTS.map(d=>d.key);
+  if(depts.includes(deptKey)) depts = depts.filter(k=>k!==deptKey);
+  else depts.push(deptKey);
+  await db.collection('roles').doc(email).update({departments: depts});
+  toast('تم تحديث أقسام العضو');
+  /* لو العضو اللي اتعدل هو نفسه المستخدم الحالي، حدّث صلاحياته في نفس اللحظة */
+  if(currentUser && (currentUser.email||'').toLowerCase()===email){
+    currentStaffDepts = depts;
+    applyTeamDeptVisibility();
+  }
 }
 async function editMemberName(email, current){
   const val = prompt('اسم العضو:', current||'');
