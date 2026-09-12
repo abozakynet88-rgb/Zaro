@@ -563,14 +563,32 @@ const FIREBASE_CONFIG = {
         <!-- ===== قسم: الشحن ===== -->
         <div id="team-tab-shipping" style="display:none">
           <h2>الشحن <span id="deptLeadHint-shipping" class="meta" style="font-size:11.5px;color:#8a8a8a;display:none"></span></h2>
-          <div class="sub">الطلبات الجاهزة للشحن — اختر شركة الشحن وسلّمها.</div>
-          <div class="filters">
-            <select id="deptShippingFilterCategory" onchange="renderDeptShipping()"><option value="">كل أنواع المنتجات</option></select>
-            <select id="deptShippingFilterEmployee" onchange="renderDeptShipping()"><option value="">كل الموظفين</option></select>
-            <button type="button" class="btn btn-outline btn-sm" onclick="addShippingCompanyQuick()">+ إضافة شركة شحن</button>
+          <div class="wh-subtabs">
+            <button class="active" data-ship="orders" onclick="shipTab('orders')">الطلبات</button>
+            <button data-ship="companies" onclick="shipTab('companies')">شركات الشحن والمناديب</button>
           </div>
-          <div id="teamShippingOrders"></div>
-          <div class="empty" id="teamShippingEmpty" style="display:none;color:#8a8a8a">مفيش طلبات في الشحن دلوقتي.</div>
+
+          <div id="ship-tab-orders">
+            <div class="sub">الطلبات الجاهزة للشحن — اختر شركة الشحن والمندوب وسلّمها.</div>
+            <div class="filters">
+              <select id="deptShippingFilterCategory" onchange="renderDeptShipping()"><option value="">كل أنواع المنتجات</option></select>
+              <select id="deptShippingFilterEmployee" onchange="renderDeptShipping()"><option value="">كل الموظفين</option></select>
+            </div>
+            <div id="teamShippingOrders"></div>
+            <div class="empty" id="teamShippingEmpty" style="display:none;color:#8a8a8a">مفيش طلبات في الشحن دلوقتي.</div>
+          </div>
+
+          <div id="ship-tab-companies" style="display:none">
+            <div class="section-head" style="margin-bottom:14px">
+              <h3 style="color:#fff;font-size:15px">شركات الشحن</h3>
+              <button class="btn btn-copper btn-sm" onclick="openShippingCompanyModal()">+ إضافة شركة شحن</button>
+            </div>
+            <div class="sub">الشركات المعطّلة بتفضل موجودة عشان تاريخ الطلبات القديمة، لكن مش بتظهر كخيار للطلبات الجديدة.</div>
+            <div class="table-wrap"><table class="data">
+              <thead><tr><th>الشركة</th><th>الفرع</th><th>الهاتف</th><th>المندوب</th><th>الحالة</th><th>عدد الطلبات</th><th>مبالغ لدى الشركة</th><th></th></tr></thead>
+              <tbody id="shippingCompaniesTable"></tbody>
+            </table></div>
+          </div>
         </div>
         <div id="team-tab-products" style="display:none">
           <div class="section-head" style="margin-bottom:14px">
@@ -757,8 +775,23 @@ const FIREBASE_CONFIG = {
           </table></div>
           <h3 style="color:#fff;font-size:15px;margin:22px 0 10px">الطلبات بانتظار التحصيل</h3>
           <div class="table-wrap"><table class="data">
-            <thead><tr><th>رقم الطلب</th><th>العميل</th><th>الموظف المستلم</th><th>شركة الشحن</th><th>الإجمالي</th><th>آخر تحديث</th><th></th></tr></thead>
+            <thead><tr><th></th><th>رقم الطلب</th><th>العميل</th><th>الموظف المستلم</th><th>شركة الشحن</th><th>الإجمالي</th><th>المحصل</th><th>آخر تحديث</th><th></th></tr></thead>
             <tbody id="accountsPendingTable"></tbody>
+          </table></div>
+
+          <h3 style="color:#fff;font-size:15px;margin:22px 0 10px">سجل التحصيل</h3>
+          <div class="table-wrap"><table class="data">
+            <thead><tr><th>التاريخ</th><th>الطلب</th><th>العميل</th><th>شركة الشحن</th><th>المحصل</th><th>المتبقي</th><th>الطريقة</th><th>الموظف</th></tr></thead>
+            <tbody id="collectionsLogTable"></tbody>
+          </table></div>
+
+          <div class="section-head" style="margin:26px 0 14px">
+            <h3 style="color:#fff;font-size:15px">المرتجعات</h3>
+          </div>
+          <div class="sub">مرتجعات الطلبات بعد خروجها من المخزن — كل مرتجع بيمر بمراحل مراجعة وفحص قبل ما يتحدد مصير المنتج والمبلغ.</div>
+          <div class="table-wrap"><table class="data">
+            <thead><tr><th>الطلب</th><th>العميل</th><th>السبب</th><th>الجهة</th><th>مبلغ الاسترداد</th><th>الحالة</th><th></th></tr></thead>
+            <tbody id="returnsTable"></tbody>
           </table></div>
         </div>
       </div>
@@ -808,6 +841,15 @@ const FIREBASE_CONFIG = {
           <div class="sub">مسؤول القسم منفصل عن "الموظف المستلم" لكل طلب — ده للمتابعة والتقارير العامة على مستوى القسم كله.</div>
           <div class="team-panel">
             <div id="departmentLeadsList"></div>
+          </div>
+          <div class="section-head" style="margin:26px 0 14px">
+            <h2 style="color:#fff">حدود التأخير 🔴🟡🟢</h2>
+          </div>
+          <div class="sub">عدد الأيام من آخر تحديث للطلب اللي بعده يتحول لتنبيه "يحتاج متابعة" أو "متأخر" في كل لوحات الفريق.</div>
+          <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:20px">
+            <div class="field" style="margin-bottom:0"><label>🟡 يحتاج متابعة بعد (أيام)</label><input type="number" id="lateThresholdYellow" min="1" step="1" style="width:100px"></div>
+            <div class="field" style="margin-bottom:0"><label>🔴 متأخر بعد (أيام)</label><input type="number" id="lateThresholdRed" min="1" step="1" style="width:100px"></div>
+            <button class="btn btn-copper btn-sm" onclick="saveLateThresholds()">حفظ الحدود</button>
           </div>
           <div class="section-head" style="margin:26px 0 14px">
             <h2 style="color:#fff">أسماء موظفي استلام الطلبات</h2>
@@ -1010,6 +1052,87 @@ const FIREBASE_CONFIG = {
   </div>
 </div>
 
+<!-- نموذج تسجيل مرتجع -->
+<div class="modal-wrap dark-modal" id="returnModalWrap">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('returnModalWrap')">×</button>
+    <h3 style="color:#fff;margin-bottom:6px">تسجيل مرتجع</h3>
+    <div class="sub" id="returnModalSub" style="margin-bottom:14px"></div>
+    <form onsubmit="submitReturn(event)">
+      <input type="hidden" id="retOrderId">
+      <div class="field"><label>سبب الإرجاع</label><textarea id="retReason" rows="2" required></textarea></div>
+      <div class="field"><label>جهة السبب</label>
+        <select id="retFaultParty">
+          <option value="customer">العميل</option>
+          <option value="company">شركة الشحن</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>المنتجات المرتجعة وحالتها</label>
+        <div id="retItemsList" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+      <div class="field"><label>مبلغ الاسترداد للعميل</label><input type="number" id="retRefundAmount" min="0" step="0.01" value="0"></div>
+      <div class="field"><label>مصاريف الشحن (لو فيه)</label><input type="number" id="retShippingCost" min="0" step="0.01" value="0"></div>
+      <div class="field"><label>ملاحظات</label><textarea id="retNotes" rows="2"></textarea></div>
+      <button type="submit" class="btn btn-copper btn-block">تسجيل المرتجع</button>
+    </form>
+  </div>
+</div>
+
+<!-- نموذج تسجيل تحصيل -->
+<div class="modal-wrap dark-modal" id="collectionModalWrap">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('collectionModalWrap')">×</button>
+    <h3 style="color:#fff;margin-bottom:6px">تسجيل تحصيل</h3>
+    <div class="sub" id="collectionModalSub" style="margin-bottom:14px"></div>
+    <form onsubmit="submitCollection(event)">
+      <input type="hidden" id="colOrderId">
+      <div class="field"><label>المبلغ المحصل الآن</label><input type="number" id="colAmount" min="0" step="0.01" required></div>
+      <div class="field"><label>طريقة التحصيل</label>
+        <select id="colMethod">
+          <option value="من شركة الشحن">من شركة الشحن</option>
+          <option value="كاش">كاش</option>
+          <option value="تحويل بنكي">تحويل بنكي</option>
+          <option value="محفظة إلكترونية">محفظة إلكترونية</option>
+          <option value="أخرى">أخرى</option>
+        </select>
+      </div>
+      <div class="field"><label>ملاحظات</label><textarea id="colNotes" rows="2"></textarea></div>
+      <button type="submit" class="btn btn-copper btn-block">حفظ التحصيل</button>
+    </form>
+  </div>
+</div>
+
+<!-- نموذج شركة شحن -->
+<div class="modal-wrap dark-modal" id="shippingCompanyModalWrap">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('shippingCompanyModalWrap')">×</button>
+    <h3 id="shippingCompanyModalTitle" style="color:#fff;margin-bottom:16px">شركة شحن جديدة</h3>
+    <form onsubmit="submitShippingCompany(event)">
+      <div class="field"><label>اسم الشركة</label><input type="text" id="scName" required></div>
+      <div class="field"><label>الفرع</label><input type="text" id="scBranch"></div>
+      <div class="field"><label>المحافظة</label><input type="text" id="scGovernorate"></div>
+      <div class="field"><label>العنوان</label><input type="text" id="scAddress"></div>
+      <div class="field"><label>الهاتف</label><input type="tel" id="scPhone"></div>
+      <div class="field"><label>واتساب</label><input type="tel" id="scWhatsapp"></div>
+      <div class="field"><label>اسم المسؤول</label><input type="text" id="scManagerName"></div>
+      <div class="field"><label>أرقام المسؤول</label><input type="text" id="scManagerPhones" placeholder="ممكن أكتر من رقم مفصولين بفاصلة"></div>
+      <div class="field"><label>بيانات التحصيل</label><textarea id="scCollectionInfo" rows="2" placeholder="رقم حساب / محفظة / طريقة التحصيل المتفق عليها"></textarea></div>
+      <div class="field"><label>ملاحظات</label><textarea id="scNotes" rows="2"></textarea></div>
+      <div class="field">
+        <label>الحالة</label>
+        <select id="scStatus"><option value="active">نشطة</option><option value="inactive">غير نشطة</option></select>
+      </div>
+      <div class="field">
+        <label>المناديب</label>
+        <div id="scRepsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="addRepRow()">+ إضافة مندوب</button>
+      </div>
+      <button type="submit" class="btn btn-copper btn-block">حفظ شركة الشحن</button>
+    </form>
+  </div>
+</div>
+
 <!-- نموذج إضافة عضو فريق -->
 <div class="modal-wrap dark-modal" id="roleModalWrap">
   <div class="modal">
@@ -1084,6 +1207,18 @@ const STAGES = [
 ];
 const stageLabel = k => (STAGES.find(s=>s.key===k)||{}).label || k;
 const stageIndex = k => STAGES.findIndex(s=>s.key===k);
+/* مراحل المرتجع — منفصلة عن مراحل الطلب العادية، وبتتبع فقط للمرتجعات
+   المسجّلة بتفصيل (بعد خروج المنتج من المخزن)، مش لإلغاء ما قبل الشحن */
+const RETURN_STAGES = [
+  {key:'pending_review',  label:'مرتجع قيد المراجعة'},
+  {key:'received',        label:'تم استلام المرتجع'},
+  {key:'inspected',       label:'تم فحص المنتج'},
+  {key:'refund_approved', label:'تم اعتماد الاسترداد'},
+  {key:'refunded',        label:'تم رد المبلغ'},
+  {key:'closed',          label:'تم إغلاق المرتجع'},
+];
+const returnStageLabel = k => (RETURN_STAGES.find(s=>s.key===k)||{}).label || k;
+const returnStageIndex = k => RETURN_STAGES.findIndex(s=>s.key===k);
 function stageBadgeHtml(status){
   return `<span class="stage-badge st-${status||'new'}">${esc(stageLabel(status))}</span>`;
 }
@@ -1152,6 +1287,24 @@ function toggleTimelinePanel(orderId){
    ما تنفذ أي تعديل — فمينفعش نفس الحجز أو الخصم يتكرر حتى لو المستخدم
    ضغط الزرار أكتر من مرة بسرعة أو عمل Refresh للصفحة.
    ============================================================ */
+/* Activity Log عام لأي عملية مهمة (إنشاء/تعديل طلب، تغيير حالة، تعيين موظف،
+   تعديل منتج، تعديل مخزون، شحن، تحصيل، مرتجع، تعديل مالي...) — يحفظ الموظف
+   والتاريخ والعملية والطلب/المنتج والتفاصيل. أي تعديل مالي مهم (تصحيح مبلغ
+   محصل مثلًا) لازم يسجل هنا بالقيمة القديمة والجديدة والسبب. */
+async function logActivity(action, entityType, entityId, details, oldValue, newValue, reason){
+  try{
+    await db.collection('activityLog').add({
+      action, entityType: entityType||null, entityId: entityId||null,
+      details: details||null,
+      oldValue: (oldValue===undefined)?null:oldValue,
+      newValue: (newValue===undefined)?null:newValue,
+      reason: reason||null,
+      byName: currentUser?.displayName||currentUser?.email||'—',
+      byEmail: (currentUser?.email||'').toLowerCase()||null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  }catch(e){ console.error('logActivity', e); }
+}
 async function logInventoryMovement(type, productId, productName, qty, orderId, reason){
   try{
     await db.collection('inventoryMovements').add({
@@ -1226,6 +1379,21 @@ let currentRole = 'customer'; // customer | team | admin
    array = مقيد بأقسام معينة اختارها المدير من لوحة الإدارة */
 let currentStaffDepts = null;
 let departmentLeadsCache = {}; // {reception:'اسم', sales:'اسم', shipping:'اسم', accounts:'اسم'}
+let lateThresholdsCache = {yellowDays:3, redDays:7}; // قابلة للتعديل من إعدادات المدير (settings/lateThresholds)
+function daysSince(ts){
+  if(!ts) return null;
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return (Date.now() - d.getTime()) / 86400000;
+}
+/* 🔴 متأخر / 🟡 يحتاج متابعة / 🟢 طبيعي — حسب عدد الأيام من آخر تحديث للطلب،
+   والحدود قابلة للتعديل من settings/lateThresholds */
+function lateBadgeHtml(o){
+  const d = daysSince(o.updatedAt);
+  if(d==null) return '';
+  if(d>=lateThresholdsCache.redDays) return '<span title="متأخر">🔴</span>';
+  if(d>=lateThresholdsCache.yellowDays) return '<span title="يحتاج متابعة">🟡</span>';
+  return '<span title="طبيعي">🟢</span>';
+}
 let products = [];
 let cart = [];             // [{productId,name,price,qty}]
 let pendingCheckout = false;
@@ -1408,7 +1576,11 @@ auth.onAuthStateChanged(async user=>{
       /* لو مفيش حقل departments (عضو مضاف قبل نظام الأقسام) يفضل عنده كل الأقسام زي قبل كده تمامًا،
          بدون ما نضطر لأي Migration على بيانات الفريق القديمة */
       currentStaffDepts = (currentRole==='team' && Array.isArray(roleData?.departments)) ? roleData.departments : null;
-    }catch(e){ currentRole='customer'; currentStaffDepts=null; }
+    }catch(e){
+      currentRole='customer'; currentStaffDepts=null;
+      console.error('roleDoc fetch failed', e);
+      toast('تعذر تحميل صلاحياتك من Firestore (roles) — '+(e.message||'')+' — راجع Firestore Rules');
+    }
     checkCustomerProfile(user);
   } else {
     authArea.innerHTML = `<button class="g-btn" onclick="signIn()" style="padding:8px 12px;font-size:13px">
@@ -1448,7 +1620,10 @@ function refreshRoleBoundListeners(){
   if(unsubShippingCompanies){unsubShippingCompanies();unsubShippingCompanies=null;}
   if(unsubEmployees){unsubEmployees();unsubEmployees=null;}
   if(unsubDepartmentLeads){unsubDepartmentLeads();unsubDepartmentLeads=null;}
+  if(unsubLateThresholds){unsubLateThresholds();unsubLateThresholds=null;}
   if(unsubInventoryMovements){unsubInventoryMovements();unsubInventoryMovements=null;}
+  if(unsubCollections){unsubCollections();unsubCollections=null;}
+  if(unsubReturns){unsubReturns();unsubReturns=null;}
 
   if(currentRole==='team' || currentRole==='admin'){
     listenTeamOrders();
@@ -1458,7 +1633,10 @@ function refreshRoleBoundListeners(){
     listenShippingCompanies();
     listenEmployees();
     listenDepartmentLeads();
+    listenLateThresholds();
     listenInventoryMovements();
+    listenCollections();
+    listenReturns();
   }
   if(currentRole==='admin'){
     listenAdminOrders();
@@ -1587,7 +1765,7 @@ function listenItemTypes(){
     renderAdminOrders();
     renderItemTypesGenderSelect();
     renderItemTypesTable();
-  }, err=>console.error('listenItemTypes', err));
+  }, err=>{ console.error('listenItemTypes', err); toast('تعذر تحميل الأصناف (itemTypes) من Firestore — '+(err.message||'')); });
 }
 function itemTypeLabel(id){
   const it = itemTypesCache.find(x=>x.id===id);
@@ -2187,7 +2365,13 @@ function renderCustomerOrderCard(o){
       </div>
       <div class="stepper">${stepper}</div>
       <div class="items-list" style="font-size:12px">${orderItemsSummary(o)}</div>
-      ${o.shippingCompany? `<div style="font-size:12.5px;color:#8a8067">شركة الشحن: ${esc(o.shippingCompany)}</div>`:''}
+      ${o.shippingCompany? `<div style="font-size:12.5px;color:#8a8067;line-height:1.9">
+        شركة الشحن: ${esc(o.shippingCompany)}${o.shippingBranch? ' — الفرع: '+esc(o.shippingBranch):''}<br>
+        ${o.shippingRepName? 'المندوب: '+esc(o.shippingRepName)+(o.shippingRepPhone? ' — '+esc(o.shippingRepPhone):'')+'<br>':''}
+        ${o.shippedAt? 'تاريخ الشحن: '+fmtDate(o.shippedAt)+'<br>':''}
+        ${o.trackingNumber? 'رقم التتبع: '+esc(o.trackingNumber)+'<br>':''}
+        ${o.shipmentStatus? 'حالة الشحنة: '+esc(o.shipmentStatus==='in_transit'?'في الطريق':o.shipmentStatus):''}
+      </div>`:''}
       ${actionBtns}
     </div>`;
 }
@@ -2242,6 +2426,24 @@ function applyTeamDeptVisibility(){
    والموظف المستلم فاضل زي ما هو (claimedByName) جوه كل طلب.
    ============================================================ */
 let unsubDepartmentLeads = null;
+let unsubLateThresholds = null;
+function listenLateThresholds(){
+  if(unsubLateThresholds) unsubLateThresholds();
+  unsubLateThresholds = db.collection('settings').doc('lateThresholds').onSnapshot(doc=>{
+    const d = doc.exists ? doc.data() : {};
+    lateThresholdsCache = {yellowDays: Number(d.yellowDays ?? 3), redDays: Number(d.redDays ?? 7)};
+    const yEl = document.getElementById('lateThresholdYellow'), rEl = document.getElementById('lateThresholdRed');
+    if(yEl) yEl.value = lateThresholdsCache.yellowDays;
+    if(rEl) rEl.value = lateThresholdsCache.redDays;
+    renderTeamAllOrders(); renderAccountsTab(); renderAdminOrders();
+  }, err=>console.error('listenLateThresholds', err));
+}
+async function saveLateThresholds(){
+  const yellowDays = Number(document.getElementById('lateThresholdYellow').value)||3;
+  const redDays = Number(document.getElementById('lateThresholdRed').value)||7;
+  await db.collection('settings').doc('lateThresholds').set({yellowDays, redDays}, {merge:true});
+  toast('تم حفظ حدود التأخير');
+}
 function listenDepartmentLeads(){
   if(unsubDepartmentLeads) unsubDepartmentLeads();
   unsubDepartmentLeads = db.collection('settings').doc('departmentLeads').onSnapshot(doc=>{
@@ -2287,7 +2489,14 @@ function warehouseTab(name){
   ['purchases','suppliers','items','movements'].forEach(t=>{
     document.getElementById('wh-tab-'+t).style.display = (t===name)?'block':'none';
   });
-  document.querySelectorAll('.wh-subtabs button').forEach(b=>b.classList.toggle('active', b.dataset.wh===name));
+  document.querySelectorAll('#team-tab-purchases .wh-subtabs button').forEach(b=>b.classList.toggle('active', b.dataset.wh===name));
+}
+function shipTab(name){
+  ['orders','companies'].forEach(t=>{
+    document.getElementById('ship-tab-'+t).style.display = (t===name)?'block':'none';
+  });
+  document.querySelectorAll('#team-tab-shipping .wh-subtabs button').forEach(b=>b.classList.toggle('active', b.dataset.ship===name));
+  if(name==='companies') renderShippingCompaniesTable();
 }
 
 /* ============================================================
@@ -2375,18 +2584,22 @@ function renderAccountsTab(){
 
   pendingTbody.innerHTML = pendingOrders.map(o=>`
     <tr>
+      <td>${lateBadgeHtml(o)}</td>
       <td class="mono">#${o.id.slice(0,6)}</td>
       <td>${esc(o.customerName||'—')}</td>
       <td>${esc(o.claimedByName||'—')}</td>
       <td>${esc(o.shippingCompany||'—')}</td>
       <td class="mono">${money(o.total)}</td>
+      <td class="mono" style="color:${o.collectionStatus==='partial'?'#f5b877':'#7fd4bd'}">${o.collectedAmount? money(o.collectedAmount) : '—'}${o.collectionStatus==='partial'?' (جزئي)':''}</td>
       <td class="mono" style="font-size:11.5px">${fmtDate(o.updatedAt)}</td>
       <td>${o.status==='accounts'? `
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn btn-emerald btn-sm" onclick="markOrderCollected('${o.id}')">تم التحصيل ✓</button>
+          <button class="btn btn-emerald btn-sm" onclick="openCollectionModal('${o.id}')">تسجيل تحصيل</button>
           <button class="btn btn-outline btn-sm" onclick="returnOrderToStage('${o.id}','shipped')">رجوع للشحن</button>
+          <button class="btn btn-outline btn-sm" onclick="openReturnModal('${o.id}')">تسجيل مرتجع</button>
         </div>` : stageBadgeHtml(o.status)}</td>
-    </tr>`).join('') || `<tr><td colspan="7" style="text-align:center;color:#8a8a8a;padding:20px">مفيش طلبات بانتظار التحصيل حاليًا</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="9" style="text-align:center;color:#8a8a8a;padding:20px">مفيش طلبات بانتظار التحصيل حاليًا</td></tr>`;
+  renderReturnsTable();
 }
 
 function listenTeamOrders(){
@@ -2576,7 +2789,9 @@ function teamOrderCard(o, dept){
   } else if(dept==='shipping'){
     if(o.status==='ready_ship'){
       actions = `
-        <select id="ship-${o.id}">${shippingCompanyOptionsHtml()}</select>
+        <select id="ship-${o.id}" onchange="renderShipRepSelect('${o.id}')">${shippingCompanyOptionsHtml()}</select>
+        <select id="shipRep-${o.id}"><option value="">بدون مندوب محدد</option></select>
+        <input type="text" id="shipTracking-${o.id}" placeholder="رقم التتبع (اختياري)" style="max-width:160px">
         <button class="btn btn-emerald btn-sm" onclick="shipOrder('${o.id}')">تسليم لشركة الشحن</button>
         <button class="btn btn-outline btn-sm" onclick="returnOrderToStage('${o.id}','preparing')">رجوع للمبيعات</button>`;
     } else if(o.status==='shipped'){
@@ -2587,7 +2802,7 @@ function teamOrderCard(o, dept){
   } else if(dept==='accounts'){
     if(o.status==='accounts'){
       actions = `
-        <button class="btn btn-emerald btn-sm" onclick="markOrderCollected('${o.id}')">تم تحصيل المبلغ ✓</button>
+        <button class="btn btn-emerald btn-sm" onclick="openCollectionModal('${o.id}')">تسجيل تحصيل</button>
         <button class="btn btn-outline btn-sm" onclick="returnOrderToStage('${o.id}','shipped')">رجوع للشحن</button>`;
     }
   }
@@ -2753,42 +2968,71 @@ async function advanceOrder(orderId, status, actionLabel){
   await db.collection('orders').doc(orderId).update(patch);
   toast('تم تحديث الطلب: '+stageLabel(status));
 }
-async function shipOrder(orderId){
-  const sel = document.getElementById('ship-'+orderId);
-  let val = sel.value;
-  if(val==='__new__'){
-    val = await addShippingCompanyQuick();
-    if(!val){ toast('لازم تدخل اسم شركة الشحن'); return; }
-  }
-  if(!val){ toast('اختر شركة الشحن'); return; }
-  await db.collection('orders').doc(orderId).update({
-    status:'shipped', shippingCompany: val,
-    timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry('تسليم الطلب لشركة الشحن', 'shipped', 'الشركة: '+val)),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-  });
-  toast('تم التسليم لشركة الشحن');
-}
-async function markOrderCollected(orderId){
+function openCollectionModal(orderId){
   const o = teamAllOrdersCache.find(x=>x.id===orderId);
-  if(!confirm('تأكيد إن شركة الشحن حوّلت المبلغ وتم تحصيله بالكامل؟')) return;
+  if(!o) return;
+  const alreadyCollected = Number(o.collectedAmount||0);
+  const due = Number(o.total||0) - alreadyCollected;
+  document.getElementById('colOrderId').value = orderId;
+  document.getElementById('colAmount').value = due>0 ? due : 0;
+  document.getElementById('colNotes').value = '';
+  document.getElementById('collectionModalSub').textContent =
+    `قيمة الطلب: ${money(o.total||0)} — المحصل سابقًا: ${money(alreadyCollected)} — المستحق: ${money(due)}`;
+  document.getElementById('collectionModalWrap').classList.add('active');
+  pushModalHistory();
+}
+async function submitCollection(e){
+  e.preventDefault();
+  const orderId = document.getElementById('colOrderId').value;
+  const o = teamAllOrdersCache.find(x=>x.id===orderId);
+  if(!o){ toast('تعذر العثور على الطلب'); return; }
+  /* منع تسجيل تحصيل مكرر بدون تحذير — لو الطلب اتقفل ماليًا بالفعل لازم تأكيد صريح */
+  if(o.collectionStatus==='collected'){
+    if(!confirm('الطلب ده اتحصّل واتقفل ماليًا بالفعل. متأكد إنك عايز تسجّل تحصيل إضافي/تصحيح؟')) return;
+  }
+  const amountNow = Number(document.getElementById('colAmount').value)||0;
+  const method = document.getElementById('colMethod').value;
+  const notes = document.getElementById('colNotes').value.trim();
+  const previousCollected = Number(o.collectedAmount||0);
+  const newCollected = previousCollected + amountNow;
+  const remaining = Math.max(0, Number(o.total||0) - newCollected);
+  const isFullyCollected = remaining<=0;
   await db.collection('orders').doc(orderId).update({
-    status:'completed',
-    collectionStatus:'collected',
-    collectedAmount: o? (o.total||0) : null,
+    status: isFullyCollected ? 'completed' : 'accounts',
+    collectionStatus: isFullyCollected ? 'collected' : 'partial',
+    collectedAmount: newCollected,
     collectedAt: firebase.firestore.FieldValue.serverTimestamp(),
     accountsByEmail: (currentUser.email||'').toLowerCase(),
     accountsByName: currentUser.displayName||currentUser.email,
-    timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry('تم التحصيل والإغلاق المالي', 'completed', o? ('المبلغ: '+money(o.total||0)) : null)),
+    timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry(
+      isFullyCollected? 'تم التحصيل الكامل والإغلاق المالي' : 'تحصيل جزئي', 'accounts',
+      `المحصل الآن: ${money(amountNow)} — طريقة: ${method}${notes? ' — '+notes:''}`)),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
   });
-  toast('تم إغلاق الطلب بعد التحصيل ✓');
+  /* سجل التحصيل — يحفظ كل عملية تحصيل بالتفصيل: الطلب والعميل، شركة الشحن،
+     قيمة الطلب، المستحق، المحصل، المتبقي، التاريخ، الموظف، الطريقة، الملاحظات */
+  await db.collection('collections').add({
+    orderId, customerName: o.customerName||null, customerPhone: o.customerPhone||null,
+    shippingCompany: o.shippingCompany||null,
+    orderTotal: o.total||0, due: Number(o.total||0)-previousCollected, collected: amountNow, remaining,
+    method, notes: notes||null,
+    byName: currentUser?.displayName||currentUser?.email||'—',
+    byEmail: (currentUser?.email||'').toLowerCase()||null,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+  if(o.collectionStatus==='collected'){
+    logActivity('تصحيح/إضافة تحصيل على طلب مقفول ماليًا', 'order', orderId, notes||null, previousCollected, newCollected, 'تسجيل تحصيل إضافي بعد الإقفال المالي');
+  }
+  closeModal('collectionModalWrap');
+  toast(isFullyCollected? 'تم إغلاق الطلب بعد التحصيل الكامل ✓' : 'تم تسجيل تحصيل جزئي — المتبقي: '+money(remaining));
 }
 
 /* ============================================================
-   شركات الشحن
+   شركات الشحن والمناديب
    ============================================================ */
 let shippingCompaniesCache = [];
 let unsubShippingCompanies = null;
+let editingShippingCompanyId = null;
 function listenShippingCompanies(){
   if(unsubShippingCompanies) unsubShippingCompanies();
   unsubShippingCompanies = db.collection('shippingCompanies').orderBy('name').onSnapshot(snap=>{
@@ -2797,23 +3041,193 @@ function listenShippingCompanies(){
     renderAccountsTab();
     renderTeamAllOrders();
     renderAdminOrders();
+    renderShippingCompaniesTable();
     /* لازم نعيد رسم قسم الشحن كل ما القايمة تتحدث، عشان قايمة الشركات في السلكت متفضلش فاضية لو الطلبات ظهرت قبل القايمة */
     renderDeptShipping();
   }, err=>console.error('listenShippingCompanies', err));
 }
+/* الشركات النشطة بس هي اللي بتتعرض كخيار لشحنة جديدة — الشركات المعطّلة بتفضل
+   محفوظة عشان تاريخ الطلبات القديمة اللي اتشحنت بيها قبل كده (لا حذف نهائي) */
 function shippingCompanyOptionsHtml(){
   return '<option value="">اختر شركة الشحن</option>' +
-    shippingCompaniesCache.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('') +
+    shippingCompaniesCache.filter(c=>c.status!=='inactive').map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.branch? ' — '+esc(c.branch):''}</option>`).join('') +
     '<option value="__new__">+ شركة شحن جديدة…</option>';
 }
 async function addShippingCompanyQuick(){
   const val = (prompt('اسم شركة الشحن الجديدة:')||'').trim();
   if(!val) return null;
   const exists = shippingCompaniesCache.find(c=>c.name.trim().toLowerCase()===val.toLowerCase());
-  if(exists){ toast('الشركة دي مسجّلة بالفعل'); return exists.name; }
-  await db.collection('shippingCompanies').add({name: val, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+  if(exists) { toast('الشركة دي مسجّلة بالفعل'); return exists.id; }
+  const ref = await db.collection('shippingCompanies').add({
+    name: val, status:'active', reps:[],
+    addedByName: currentUser?.displayName||currentUser?.email||null,
+    addedByEmail: (currentUser?.email||'').toLowerCase()||null,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
   toast('تمت إضافة شركة الشحن');
-  return val;
+  return ref.id;
+}
+/* لما يتغيّر اختيار شركة الشحن جوه كارت الطلب، نحدّث قايمة المناديب المتاحين لها */
+function renderShipRepSelect(orderId){
+  const companyId = document.getElementById('ship-'+orderId)?.value;
+  const repSel = document.getElementById('shipRep-'+orderId);
+  if(!repSel) return;
+  const company = shippingCompaniesCache.find(c=>c.id===companyId);
+  const reps = company && Array.isArray(company.reps) ? company.reps : [];
+  repSel.innerHTML = '<option value="">بدون مندوب محدد</option>' +
+    reps.map((r,i)=>`<option value="${i}">${esc(r.name)}${r.phone? ' — '+esc(r.phone):''}</option>`).join('');
+}
+async function shipOrder(orderId){
+  const sel = document.getElementById('ship-'+orderId);
+  let companyId = sel.value;
+  if(companyId==='__new__'){
+    companyId = await addShippingCompanyQuick();
+    if(!companyId){ toast('لازم تدخل اسم شركة الشحن'); return; }
+  }
+  if(!companyId){ toast('اختر شركة الشحن'); return; }
+  const company = shippingCompaniesCache.find(c=>c.id===companyId);
+  if(!company){ toast('تعذر العثور على بيانات الشركة'); return; }
+  const repSel = document.getElementById('shipRep-'+orderId);
+  const rep = (repSel && repSel.value!=='') ? (company.reps||[])[Number(repSel.value)] : null;
+  const trackingNumber = (document.getElementById('shipTracking-'+orderId)?.value||'').trim();
+  /* نسخة من بيانات الشحن بتتحفظ جوه الطلب نفسه، عشان لو بيانات الشركة اتغيرت
+     بعدين (فرع/مندوب/هاتف)، تاريخ الطلب القديم يفضل زي ما كان وقت الشحن بالظبط */
+  const shippingSnapshot = {
+    companyId, name: company.name, branch: company.branch||null,
+    phone: company.phone||null, whatsapp: company.whatsapp||null,
+    repName: rep? rep.name : null, repPhone: rep? rep.phone : null,
+  };
+  await db.collection('orders').doc(orderId).update({
+    status:'shipped',
+    shippingCompanyId: companyId,
+    shippingCompany: company.name, // فاضل زي ما هو لأي كود قديم بيقرا الاسم مباشرة
+    shippingBranch: company.branch||null,
+    shippingRepName: rep? rep.name : null,
+    shippingRepPhone: rep? rep.phone : null,
+    trackingNumber: trackingNumber||null,
+    shipmentStatus: 'in_transit',
+    shippingSnapshot,
+    shippedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry('تسليم الطلب لشركة الشحن', 'shipped',
+      'الشركة: '+company.name + (rep? (' — المندوب: '+rep.name) : '') + (trackingNumber? (' — تتبع: '+trackingNumber) : ''))),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+  toast('تم التسليم لشركة الشحن');
+}
+
+/* ===== إدارة شركات الشحن (تفاصيل/تعديل/تفعيل-تعطيل) ===== */
+function renderShippingCompaniesTable(){
+  const tbody = document.getElementById('shippingCompaniesTable');
+  if(!tbody) return;
+  tbody.innerHTML = shippingCompaniesCache.map(c=>{
+    const rep = (Array.isArray(c.reps) && c.reps[0]) ? c.reps[0] : null;
+    const ordersForCompany = teamAllOrdersCache.filter(o=>(o.shippingCompanyId===c.id) || (!o.shippingCompanyId && o.shippingCompany===c.name));
+    const pendingStatuses = ['shipped','delivered','accounts'];
+    const amountAtCompany = ordersForCompany.filter(o=>pendingStatuses.includes(o.status)).reduce((s,o)=>s+(o.total||0),0);
+    const active = c.status!=='inactive';
+    return `
+    <tr>
+      <td>${esc(c.name)}</td>
+      <td>${esc(c.branch||'—')}</td>
+      <td class="mono">${esc(c.phone||'—')}</td>
+      <td>${rep? esc(rep.name) : '—'}</td>
+      <td>${active? '<span style="color:#7fd4bd">نشطة</span>' : '<span style="color:var(--rose)">غير نشطة</span>'}</td>
+      <td class="mono">${ordersForCompany.length}</td>
+      <td class="mono">${money(amountAtCompany)}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="openShippingCompanyModal('${c.id}')">تفاصيل / تعديل</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleShippingCompanyStatus('${c.id}')">${active? 'تعطيل':'تفعيل'}</button>
+      </td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="8" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد شركات شحن مضافة بعد</td></tr>`;
+}
+async function toggleShippingCompanyStatus(id){
+  const c = shippingCompaniesCache.find(x=>x.id===id);
+  if(!c) return;
+  const newStatus = c.status==='inactive' ? 'active' : 'inactive';
+  /* تعطيل فقط — لا حذف نهائي أبدًا، حفاظًا على تاريخ الطلبات القديمة المرتبطة بالشركة */
+  await db.collection('shippingCompanies').doc(id).update({status:newStatus});
+  toast(newStatus==='active' ? 'تم تفعيل الشركة' : 'تم تعطيل الشركة');
+}
+function addRepRow(name,phone,whatsapp,notes){
+  const wrap = document.getElementById('scRepsList');
+  const idx = wrap.children.length;
+  const row = document.createElement('div');
+  row.className = 'rep-row';
+  row.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;align-items:center;border:1px solid var(--line-dark);border-radius:8px;padding:8px';
+  row.innerHTML = `
+    <input type="text" placeholder="اسم المندوب" class="rep-name" value="${esc(name||'')}" style="flex:1;min-width:110px">
+    <input type="tel" placeholder="الهاتف" class="rep-phone" value="${esc(phone||'')}" style="flex:1;min-width:110px">
+    <input type="tel" placeholder="واتساب" class="rep-whatsapp" value="${esc(whatsapp||'')}" style="flex:1;min-width:110px">
+    <input type="text" placeholder="ملاحظات" class="rep-notes" value="${esc(notes||'')}" style="flex:1;min-width:110px">
+    <button type="button" class="btn btn-outline btn-sm" onclick="this.parentElement.remove()">حذف</button>`;
+  wrap.appendChild(row);
+}
+function openShippingCompanyModal(id){
+  editingShippingCompanyId = id||null;
+  document.getElementById('shippingCompanyModalTitle').textContent = id ? 'تعديل شركة شحن' : 'شركة شحن جديدة';
+  document.getElementById('scRepsList').innerHTML = '';
+  if(id){
+    const c = shippingCompaniesCache.find(x=>x.id===id);
+    if(!c) return;
+    document.getElementById('scName').value = c.name||'';
+    document.getElementById('scBranch').value = c.branch||'';
+    document.getElementById('scGovernorate').value = c.governorate||'';
+    document.getElementById('scAddress').value = c.address||'';
+    document.getElementById('scPhone').value = c.phone||'';
+    document.getElementById('scWhatsapp').value = c.whatsapp||'';
+    document.getElementById('scManagerName').value = c.managerName||'';
+    document.getElementById('scManagerPhones').value = c.managerPhones||'';
+    document.getElementById('scCollectionInfo').value = c.collectionInfo||'';
+    document.getElementById('scNotes').value = c.notes||'';
+    document.getElementById('scStatus').value = c.status==='inactive' ? 'inactive' : 'active';
+    (c.reps||[]).forEach(r=>addRepRow(r.name, r.phone, r.whatsapp, r.notes));
+  } else {
+    document.getElementById('scName').value='';
+    ['scBranch','scGovernorate','scAddress','scPhone','scWhatsapp','scManagerName','scManagerPhones','scCollectionInfo','scNotes'].forEach(id2=>document.getElementById(id2).value='');
+    document.getElementById('scStatus').value = 'active';
+  }
+  document.getElementById('shippingCompanyModalWrap').classList.add('active');
+  pushModalHistory();
+}
+async function submitShippingCompany(e){
+  e.preventDefault();
+  const reps = [...document.querySelectorAll('#scRepsList .rep-row')].map(row=>({
+    name: row.querySelector('.rep-name').value.trim(),
+    phone: row.querySelector('.rep-phone').value.trim(),
+    whatsapp: row.querySelector('.rep-whatsapp').value.trim(),
+    notes: row.querySelector('.rep-notes').value.trim(),
+  })).filter(r=>r.name);
+  const payload = {
+    name: document.getElementById('scName').value.trim(),
+    branch: document.getElementById('scBranch').value.trim(),
+    governorate: document.getElementById('scGovernorate').value.trim(),
+    address: document.getElementById('scAddress').value.trim(),
+    phone: document.getElementById('scPhone').value.trim(),
+    whatsapp: document.getElementById('scWhatsapp').value.trim(),
+    managerName: document.getElementById('scManagerName').value.trim(),
+    managerPhones: document.getElementById('scManagerPhones').value.trim(),
+    collectionInfo: document.getElementById('scCollectionInfo').value.trim(),
+    notes: document.getElementById('scNotes').value.trim(),
+    status: document.getElementById('scStatus').value,
+    reps,
+  };
+  try{
+    if(editingShippingCompanyId){
+      await db.collection('shippingCompanies').doc(editingShippingCompanyId).update(payload);
+      toast('تم حفظ تعديلات شركة الشحن');
+    } else {
+      await db.collection('shippingCompanies').add({
+        ...payload,
+        addedByName: currentUser?.displayName||currentUser?.email||null,
+        addedByEmail: (currentUser?.email||'').toLowerCase()||null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      toast('تمت إضافة شركة الشحن');
+    }
+    editingShippingCompanyId = null;
+    closeModal('shippingCompanyModalWrap');
+  }catch(err){ toast('تعذر حفظ شركة الشحن: '+err.message); }
 }
 
 /* ============================================================
@@ -2829,7 +3243,7 @@ function listenEmployees(){
     renderEmployeesList();
     refreshEmployeeFilterSelects();
     renderDeptReception();
-  }, err=>console.error('listenEmployees', err));
+  }, err=>{ console.error('listenEmployees', err); toast('تعذر تحميل قائمة الموظفين (employees) من Firestore — '+(err.message||'')); });
 }
 function employeeOptionsHtml(placeholder){
   return `<option value="">${esc(placeholder||'اختر اسم الموظف')}</option>` +
@@ -2841,9 +3255,15 @@ async function addEmployeeQuick(){
   if(!val) return null;
   const exists = employeesCache.find(e=>e.name.trim().toLowerCase()===val.toLowerCase());
   if(exists){ toast('الاسم ده موجود بالفعل'); return exists.name; }
-  await db.collection('employees').add({name: val, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
-  toast('تمت إضافة الموظف');
-  return val;
+  try{
+    await db.collection('employees').add({name: val, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+    toast('تمت إضافة الموظف');
+    return val;
+  }catch(err){
+    console.error('addEmployeeQuick', err);
+    toast('تعذرت إضافة الموظف — '+(err.message||'خطأ غير معروف')+' (راجع صلاحيات Firestore لمجموعة employees)');
+    return null;
+  }
 }
 function renderEmployeesList(){
   const wrap = document.getElementById('employeesList');
@@ -2895,6 +3315,174 @@ function renderTeamProducts(){
 let purchasesCache = [];
 let unsubInventoryMovements = null;
 let inventoryMovementsCache = [];
+let unsubCollections = null;
+let collectionsCache = [];
+function listenCollections(){
+  if(unsubCollections) unsubCollections();
+  unsubCollections = db.collection('collections').orderBy('createdAt','desc').limit(300).onSnapshot(snap=>{
+    collectionsCache = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderCollectionsTable();
+  }, err=>console.error('listenCollections', err));
+}
+function renderCollectionsTable(){
+  const tbody = document.getElementById('collectionsLogTable');
+  if(!tbody) return;
+  tbody.innerHTML = collectionsCache.map(c=>`
+    <tr>
+      <td class="mono" style="font-size:11.5px">${fmtDate(c.createdAt)}</td>
+      <td class="mono" style="font-size:11px">${c.orderId? '#'+c.orderId.slice(0,6):'—'}</td>
+      <td>${esc(c.customerName||'—')}</td>
+      <td>${esc(c.shippingCompany||'—')}</td>
+      <td class="mono">${money(c.collected)}</td>
+      <td class="mono" style="color:${(c.remaining||0)>0?'var(--rose)':'#7fd4bd'}">${money(c.remaining||0)}</td>
+      <td>${esc(c.method||'—')}</td>
+      <td>${esc(c.byName||'—')}</td>
+    </tr>`).join('') || `<tr><td colspan="8" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد عمليات تحصيل مسجّلة بعد</td></tr>`;
+}
+
+/* ============================================================
+   المرتجعات — تسير في مراحل مراجعة/استلام/فحص/اعتماد استرداد/رد المبلغ/
+   إغلاق. المخزون بيترجع فعليًا بس للأصناف "صالحة للبيع" لحظة اعتماد
+   الاسترداد، ومحمي بـ stockReturned عشان ميترجعش مرتين.
+   ============================================================ */
+let returnsCache = [];
+let unsubReturns = null;
+function listenReturns(){
+  if(unsubReturns) unsubReturns();
+  unsubReturns = db.collection('returns').orderBy('createdAt','desc').onSnapshot(snap=>{
+    returnsCache = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderReturnsTable();
+  }, err=>console.error('listenReturns', err));
+}
+function renderReturnsTable(){
+  const tbody = document.getElementById('returnsTable');
+  if(!tbody) return;
+  tbody.innerHTML = returnsCache.map(r=>{
+    const nextStage = RETURN_STAGES[returnStageIndex(r.stage)+1];
+    return `
+    <tr>
+      <td class="mono" style="font-size:11px">${r.orderId? '#'+r.orderId.slice(0,6):'—'}</td>
+      <td>${esc(r.customerName||'—')}</td>
+      <td style="font-size:11.5px;max-width:220px">${esc(r.reason||'—')}</td>
+      <td>${r.faultParty==='company'?'شركة الشحن':'العميل'}</td>
+      <td class="mono">${money(r.refundAmount||0)}</td>
+      <td>${esc(returnStageLabel(r.stage))}${r.stage==='refunded'||r.stage==='closed'? '' : ''}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        ${nextStage? `<button class="btn btn-emerald btn-sm" onclick="advanceReturnStage('${r.id}','${nextStage.key}')">${nextStage.label}</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="7" style="text-align:center;color:#8a8a8a;padding:20px">لا توجد مرتجعات مسجّلة</td></tr>`;
+}
+function openReturnModal(orderId){
+  const o = teamAllOrdersCache.find(x=>x.id===orderId);
+  if(!o){ toast('تعذر العثور على الطلب'); return; }
+  document.getElementById('retOrderId').value = orderId;
+  document.getElementById('retReason').value = '';
+  document.getElementById('retRefundAmount').value = 0;
+  document.getElementById('retShippingCost').value = 0;
+  document.getElementById('retNotes').value = '';
+  document.getElementById('returnModalSub').textContent = `الطلب #${orderId.slice(0,6)} — العميل: ${o.customerName||'—'}`;
+  const wrap = document.getElementById('retItemsList');
+  wrap.innerHTML = (o.items||[]).map((it,i)=>`
+    <div class="ret-item-row" data-idx="${i}" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;border:1px solid var(--line-dark);border-radius:8px;padding:8px">
+      <label style="display:flex;align-items:center;gap:6px;flex:1;min-width:140px">
+        <input type="checkbox" class="ret-item-check" checked> ${esc(it.name)} (الكمية الأصلية: ${it.qty})
+      </label>
+      <input type="number" class="ret-item-qty" min="1" max="${it.qty}" value="${it.qty}" style="width:70px">
+      <select class="ret-item-condition">
+        <option value="valid">صالح للبيع</option>
+        <option value="damaged">تالف</option>
+        <option value="inspect">يحتاج فحص</option>
+        <option value="incomplete">ناقص/به مشكلة</option>
+      </select>
+    </div>`).join('') || '<div style="color:#8a8a8a">لا توجد أصناف مرتبطة بهذا الطلب</div>';
+  document.getElementById('returnModalWrap').classList.add('active');
+  pushModalHistory();
+}
+async function submitReturn(e){
+  e.preventDefault();
+  const orderId = document.getElementById('retOrderId').value;
+  const o = teamAllOrdersCache.find(x=>x.id===orderId);
+  if(!o){ toast('تعذر العثور على الطلب'); return; }
+  const rows = [...document.querySelectorAll('#retItemsList .ret-item-row')];
+  const items = rows.filter(r=>r.querySelector('.ret-item-check').checked).map(r=>{
+    const idx = Number(r.dataset.idx);
+    const orig = (o.items||[])[idx] || {};
+    return {
+      productId: orig.productId||null, name: orig.name||'',
+      qty: Number(r.querySelector('.ret-item-qty').value)||0,
+      condition: r.querySelector('.ret-item-condition').value,
+    };
+  }).filter(it=>it.qty>0);
+  if(!items.length){ toast('اختر منتج واحد على الأقل للمرتجع'); return; }
+  const reason = document.getElementById('retReason').value.trim();
+  const faultParty = document.getElementById('retFaultParty').value;
+  const refundAmount = Number(document.getElementById('retRefundAmount').value)||0;
+  const shippingCost = Number(document.getElementById('retShippingCost').value)||0;
+  const notes = document.getElementById('retNotes').value.trim();
+  const returnRef = await db.collection('returns').add({
+    orderId, customerName: o.customerName||null, customerPhone: o.customerPhone||null,
+    reason, faultParty, items, refundAmount, shippingCost, notes,
+    stage: 'pending_review',
+    stockReturned: false,
+    refundPaid: false,
+    byName: currentUser?.displayName||currentUser?.email||'—',
+    byEmail: (currentUser?.email||'').toLowerCase()||null,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+  await db.collection('orders').doc(orderId).update({
+    status: 'returned',
+    returnId: returnRef.id,
+    timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry('تسجيل مرتجع — قيد المراجعة', 'returned', reason)),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+  closeModal('returnModalWrap');
+  toast('تم تسجيل المرتجع — قيد المراجعة');
+}
+async function advanceReturnStage(returnId, nextStage){
+  const retRef = db.collection('returns').doc(returnId);
+  try{
+    if(nextStage==='refund_approved'){
+      /* هنا بالظبط بترجع الأصناف "صالحة للبيع" فعليًا للمخزون — محمي بـ
+         stockReturned جوه نفس الـ Transaction عشان ميترجعش مرتين */
+      await db.runTransaction(async t=>{
+        const snap = await t.get(retRef);
+        if(!snap.exists) throw new Error('المرتجع غير موجود');
+        const r = snap.data();
+        if(returnStageIndex(r.stage) < returnStageIndex('inspected')) throw new Error('لازم يتم فحص المنتج الأول قبل اعتماد الاسترداد');
+        if(r.stockReturned){ t.update(retRef, {stage: nextStage, updatedAt: firebase.firestore.FieldValue.serverTimestamp()}); return; }
+        const validItems = (r.items||[]).filter(it=>it.condition==='valid' && it.productId);
+        const refs = validItems.map(it=>db.collection('products').doc(it.productId));
+        const snaps = await Promise.all(refs.map(rf=>t.get(rf)));
+        snaps.forEach((s,idx)=>{
+          if(!s.exists) return; // منتج محذوف — لا نوقف اعتماد المرتجع، بس منقدرش نرجّع مخزونه
+          const p = s.data();
+          t.update(refs[idx], {
+            stock: Number(p.stock||0) + validItems[idx].qty,
+            returnedCount: Number(p.returnedCount||0) + validItems[idx].qty,
+          });
+        });
+        t.update(retRef, {stage: nextStage, stockReturned:true, updatedAt: firebase.firestore.FieldValue.serverTimestamp()});
+      });
+      const freshSnap = await retRef.get();
+      const r = freshSnap.data();
+      (r.items||[]).filter(it=>it.condition==='valid').forEach(it=>logInventoryMovement('مرتجع صالح', it.productId, it.name, it.qty, r.orderId, 'اعتماد استرداد مرتجع'));
+    } else {
+      await retRef.update({stage: nextStage, updatedAt: firebase.firestore.FieldValue.serverTimestamp()});
+      if(nextStage==='refunded') await retRef.update({refundPaid:true, refundedAt: firebase.firestore.FieldValue.serverTimestamp()});
+    }
+    const freshSnap2 = await retRef.get();
+    const r2 = freshSnap2.data();
+    if(r2 && r2.orderId){
+      db.collection('orders').doc(r2.orderId).update({
+        timeline: firebase.firestore.FieldValue.arrayUnion(timelineEntry('مرتجع: '+returnStageLabel(nextStage), 'returned')),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      }).catch(()=>{});
+    }
+    toast('تم تحديث حالة المرتجع: '+returnStageLabel(nextStage));
+  }catch(err){ toast(err.message||'تعذر تحديث حالة المرتجع'); }
+}
 function renderPurchaseGenderSelect(){
   const sel = document.getElementById('purchaseGender');
   if(!sel) return;
@@ -3533,6 +4121,14 @@ async function submitSupplierItem(e){
 /* أول تحميل */
 renderCart();
 renderStoreFilters(); /* اظهار تابات النوع (رجالي/حريمي/أطفال) فورًا من ثابت GENDER_LABELS، من غير ما تنتظر تحميل الأصناف من فايرستور */
+/* نفس الفكرة بالظبط لقايمتي "النوع" في فورم المنتج وفورم إضافة صنف جديد —
+   دول قايمتين ثابتتين من GENDER_LABELS ومش المفروض يستنوا استجابة Firestore
+   خالص. قبل الإصلاح ده كانوا بيفضلوا فاضيين لو استعلام itemTypes اتأخر أو
+   اترفض بسبب صلاحيات Firestore، فبيبان وكأن حقل "النوع" مش شغال. */
+renderPGenderSelect();
+if(document.getElementById('itNewGender')){
+  document.getElementById('itNewGender').innerHTML = Object.entries(GENDER_LABELS).map(([k,l])=>`<option value="${k}">${l}</option>`).join('');
+}
 go('store');
 </script>
 </body>
