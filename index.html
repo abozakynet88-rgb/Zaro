@@ -1637,10 +1637,10 @@ function refreshRoleBoundListeners(){
     listenInventoryMovements();
     listenCollections();
     listenReturns();
+    listenRoles();
   }
   if(currentRole==='admin'){
     listenAdminOrders();
-    listenRoles();
   }
 }
 
@@ -3235,6 +3235,7 @@ async function submitShippingCompany(e){
    موظف بيستلم الطلبات من نفس الحساب، والطلب لازم يفضل باسم اللي استلمه)
    ============================================================ */
 let employeesCache = [];
+let rolesCache = []; // أعضاء الفريق (roles collection) — بيتغذى منها كمان قايمة "استلام الطلب" لو الموظفين نفسهم هما فريق العمل
 let unsubEmployees = null;
 function listenEmployees(){
   if(unsubEmployees) unsubEmployees();
@@ -3245,9 +3246,26 @@ function listenEmployees(){
     renderDeptReception();
   }, err=>{ console.error('listenEmployees', err); toast('تعذر تحميل قائمة الموظفين (employees) من Firestore — '+(err.message||'')); });
 }
+/* قايمة الأسماء اللي بتظهر في "استلام الطلب" — بتتكون من أسماء أعضاء الفريق
+   (roles) نفسهم بالإضافة لأي أسماء مضافة يدويًا من قديم في employees، من غير
+   تكرار. ده عشان لو الموظفين نفسهم هما فريق العمل، مش محتاجين تضيفهم مرتين. */
+function allEmployeeNames(){
+  const teamNames = rolesCache
+    .filter(r=>r.role==='team' || r.role==='admin')
+    .map(r=>(r.name||'').trim() || (r.email||'').split('@')[0])
+    .filter(Boolean);
+  const manualNames = employeesCache.map(e=>e.name).filter(Boolean);
+  const seen = new Set();
+  return [...teamNames, ...manualNames].filter(n=>{
+    const key = n.trim().toLowerCase();
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 function employeeOptionsHtml(placeholder){
   return `<option value="">${esc(placeholder||'اختر اسم الموظف')}</option>` +
-    employeesCache.map(e=>`<option value="${esc(e.name)}">${esc(e.name)}</option>`).join('') +
+    allEmployeeNames().map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('') +
     '<option value="__new__">+ إضافة اسم جديد…</option>';
 }
 async function addEmployeeQuick(){
@@ -3877,7 +3895,14 @@ async function adminSetOrderStatus(orderId){
 function listenRoles(){
   unsubRoles = db.collection('roles').onSnapshot(snap=>{
     const list = snap.docs.map(d=>({email:d.id,...d.data()}));
-    document.getElementById('rolesList').innerHTML = list.map(r=>{
+    rolesCache = list;
+    /* لو الموظفين هما نفسهم فريق العمل، أسماؤهم دلوقتي بتتحدث تلقائيًا في
+       قايمة "استلام الطلب" وأي سلكت تاني بيستخدم employeeOptionsHtml */
+    renderDeptReception();
+    refreshEmployeeFilterSelects();
+    const rolesListEl = document.getElementById('rolesList');
+    if(!rolesListEl) return;
+    rolesListEl.innerHTML = list.map(r=>{
       const isRestricted = Array.isArray(r.departments);
       const deptChips = r.role==='team' ? `
         <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
@@ -3906,7 +3931,7 @@ function listenRoles(){
         ${deptChips}
       </div>`;
     }).join('') || `<div style="color:#8a8a8a;font-size:13px">لا يوجد أعضاء مضافين بعد.</div>`;
-  });
+  }, err=>{ console.error('listenRoles', err); toast('تعذر تحميل أعضاء الفريق (roles) من Firestore — '+(err.message||'')); });
 }
 function openRoleModal(){ document.getElementById('roleForm').reset(); document.getElementById('roleModalWrap').classList.add('active'); pushModalHistory(); }
 async function submitRole(e){
