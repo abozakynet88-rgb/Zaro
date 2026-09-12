@@ -10,7 +10,7 @@
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#1b1613">
 <link rel="apple-touch-icon" href="zaro-logo.png">
 <link rel="icon" href="zaro-logo.png">
 
@@ -27,18 +27,18 @@
 
 <style>
   :root{
-    --ink:#0a0a0a;          /* أسود الخلفية الأساسي — الموقع كله */
-    --ink-2:#161616;        /* أسود أفتح قليلًا — كروت وبطاقات */
-    --parchment:#0a0a0a;    /* خلفية الصفحة (نفس الأسود) */
-    --paper:#121212;        /* خلفية الكروت/النوافذ */
-    --copper:#e3b100;       /* لون السبراي الأساسي — الأسعار وأزرار الفعل */
-    --copper-dark:#b58900;
-    --emerald:#f2efe4;      /* أبيض دافئ — نص وعناصر ثانوية عالية التباين */
-    --emerald-light:#ffffff;
-    --rose:#e0463a;         /* تنبيه/خطأ */
-    --line:#2a2a2a;
-    --line-dark:#2a2a2a;
-    --ink-text:#ececec;
+    --ink:#1b1613;          /* أسود فحمي دافئ — خلفية الموقع الأساسية */
+    --ink-2:#241d19;        /* أفتح شوية — كروت وبطاقات */
+    --parchment:#1b1613;    /* خلفية الصفحة (نفس الفحمي) */
+    --paper:#221b17;        /* خلفية الكروت/النوافذ */
+    --copper:#c9a24b;       /* ذهبي مطفي — الأسعار وأزرار الفعل */
+    --copper-dark:#9c7d34;
+    --emerald:#e8cfc2;      /* بيج وردي — نص وعناصر ثانوية عالية التباين */
+    --emerald-light:#f7e9e0;
+    --rose:#d1495b;         /* تنبيه/خطأ */
+    --line:#3a2f29;
+    --line-dark:#3a2f29;
+    --ink-text:#ece2da;
     font-family:'Tajawal',sans-serif;
   }
   *{box-sizing:border-box;}
@@ -51,7 +51,7 @@
 
   /* ---------- شريط علوي ---------- */
   header.site{
-    background:#000;border-bottom:1px solid var(--line);
+    background:var(--ink);border-bottom:1px solid var(--line);
     position:sticky;top:0;z-index:40;
   }
   .nav-wrap{max-width:1120px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
@@ -166,8 +166,8 @@
   }
   .btn-copper{background:var(--copper);color:#0a0a0a;}
   .btn-copper:hover{background:var(--copper-dark);}
-  .btn-emerald{background:#fff;color:#0a0a0a;}
-  .btn-emerald:hover{background:#d6d6d6;}
+  .btn-emerald{background:var(--emerald-light);color:#1b1613;}
+  .btn-emerald:hover{background:var(--emerald);}
   .btn-outline{background:none;border:1px solid var(--line);color:var(--ink-text);}
   .btn-outline:hover{background:rgba(255,255,255,.06);}
   .btn-danger{background:var(--rose);color:#fff;}
@@ -221,7 +221,7 @@
 
   .stage-badge{
     display:inline-flex;align-items:center;gap:6px;font-size:11.5px;padding:4px 10px;border-radius:99px;
-    background:rgba(227,177,0,.16);color:#e3b100;border:1px solid rgba(227,177,0,.35);
+    background:rgba(201,162,75,.16);color:#c9a24b;border:1px solid rgba(201,162,75,.35);
   }
   .stage-badge.done{background:rgba(44,124,106,.2);color:#7fd4bd;border-color:rgba(44,124,106,.4);}
   .stage-badge.stop{background:rgba(168,64,47,.2);color:#e5897b;border-color:rgba(168,64,47,.4);}
@@ -229,7 +229,7 @@
   .stage-badge.st-new{background:rgba(138,138,138,.18);color:#c8c8c8;border-color:rgba(138,138,138,.4);}
   .stage-badge.st-contacting{background:rgba(60,140,220,.18);color:#7fbef2;border-color:rgba(60,140,220,.4);}
   .stage-badge.st-confirmed{background:rgba(46,170,150,.18);color:#7fe0c8;border-color:rgba(46,170,150,.4);}
-  .stage-badge.st-preparing{background:rgba(227,177,0,.18);color:#e3b100;border-color:rgba(227,177,0,.4);}
+  .stage-badge.st-preparing{background:rgba(201,162,75,.18);color:#c9a24b;border-color:rgba(201,162,75,.4);}
   .stage-badge.st-ready_ship{background:rgba(150,100,230,.12);color:#c3a6f5;border-color:rgba(150,100,230,.3);}
   .stage-badge.st-shipped{background:rgba(150,100,230,.18);color:#c3a6f5;border-color:rgba(150,100,230,.4);}
   .stage-badge.st-delivered{background:rgba(60,180,140,.18);color:#8fe6c4;border-color:rgba(60,180,140,.4);}
@@ -359,7 +359,7 @@
 
   .type-badge.new{background:rgba(63,140,255,.18);color:#8fb8ff;}
   .type-badge.previous{background:rgba(160,160,160,.18);color:#cfcfcf;}
-  .type-badge.trader{background:rgba(227,177,0,.18);color:#e3b100;}
+  .type-badge.trader{background:rgba(201,162,75,.18);color:#c9a24b;}
 
   .table-wrap{width:100%;overflow-x:auto;}
   .store-filter-bar{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
@@ -605,20 +605,29 @@ const FIREBASE_CONFIG = {
             <h2 style="color:#fff">المخزن</h2>
           </div>
           <div class="wh-subtabs">
-            <button class="active" data-wh="purchases" onclick="warehouseTab('purchases')">المشتريات والفواتير</button>
+            <button class="active" data-wh="stock" onclick="warehouseTab('stock')">المخزون (كل المنتجات)</button>
+            <button data-wh="purchases" onclick="warehouseTab('purchases')">المشتريات والفواتير</button>
             <button data-wh="suppliers" onclick="warehouseTab('suppliers')">الموردين</button>
             <button data-wh="items" onclick="warehouseTab('items')">الأصناف</button>
             <button data-wh="movements" onclick="warehouseTab('movements')">حركة المخزون</button>
           </div>
 
-          <div id="wh-tab-purchases">
+          <div id="wh-tab-stock">
+            <div class="sub">كل المنتجات وكميتها الحالية في المخزون — نفس بيانات تاب "المنتجات" بالظبط، هنا للمتابعة السريعة من قسم المخزن.</div>
+            <div class="table-wrap"><table class="data">
+              <thead><tr><th>المنتج</th><th>النوع - الصنف</th><th>السعر</th><th>المخزون</th><th>المحجوز</th><th>المتاح للبيع</th><th>المباع</th><th>المرتجع</th><th>تنبيه</th><th></th></tr></thead>
+              <tbody id="warehouseStockTable"></tbody>
+            </table></div>
+          </div>
+
+          <div id="wh-tab-purchases" style="display:none">
             <div class="sub">سجّل هنا كل عملية شراء بضاعة — لو الصنف اللي بتكتبه جديد، هيتضاف تلقائيًا لقايمة الأصناف المتاحة في المنتجات وفلاتر المتجر. كل عملية شراء بتاخد رقم فاتورة تلقائي.</div>
             <form id="purchaseForm" onsubmit="submitPurchase(event)" style="margin-bottom:24px">
               <div class="field"><label>النوع</label>
-                <select id="purchaseGender" required></select>
+                <select id="purchaseGender" onchange="renderPurchaseItemTypeSelect()" required></select>
               </div>
               <div class="field"><label>الصنف</label>
-                <input type="text" id="purchaseItemType" placeholder="مثال: هودي، تي شيرت، بنطلون..." required>
+                <select id="purchaseItemType" required></select>
               </div>
               <div class="field"><label>الكمية</label><input type="number" id="purchaseQty" min="1" step="1" required></div>
               <div class="field"><label>سعر الشراء للقطعة (ج.م)</label><input type="number" id="purchaseUnitCost" min="0" step="0.01" required></div>
@@ -1054,7 +1063,7 @@ const FIREBASE_CONFIG = {
 
 <!-- نموذج تسجيل مرتجع -->
 <div class="modal-wrap dark-modal" id="returnModalWrap">
-  <div class="modal-box">
+  <div class="modal">
     <button class="modal-close" onclick="closeModal('returnModalWrap')">×</button>
     <h3 style="color:#fff;margin-bottom:6px">تسجيل مرتجع</h3>
     <div class="sub" id="returnModalSub" style="margin-bottom:14px"></div>
@@ -1081,7 +1090,7 @@ const FIREBASE_CONFIG = {
 
 <!-- نموذج تسجيل تحصيل -->
 <div class="modal-wrap dark-modal" id="collectionModalWrap">
-  <div class="modal-box">
+  <div class="modal">
     <button class="modal-close" onclick="closeModal('collectionModalWrap')">×</button>
     <h3 style="color:#fff;margin-bottom:6px">تسجيل تحصيل</h3>
     <div class="sub" id="collectionModalSub" style="margin-bottom:14px"></div>
@@ -1105,7 +1114,7 @@ const FIREBASE_CONFIG = {
 
 <!-- نموذج شركة شحن -->
 <div class="modal-wrap dark-modal" id="shippingCompanyModalWrap">
-  <div class="modal-box">
+  <div class="modal">
     <button class="modal-close" onclick="closeModal('shippingCompanyModalWrap')">×</button>
     <h3 id="shippingCompanyModalTitle" style="color:#fff;margin-bottom:16px">شركة شحن جديدة</h3>
     <form onsubmit="submitShippingCompany(event)">
@@ -1455,8 +1464,28 @@ function orderItemsSummary(o){
     if(i.variant?.mode==='size') bits.push('مقاس '+esc(i.variant.size));
     else if(i.variant?.mode==='hw') bits.push('طول/وزن: '+esc(i.variant.height||'—')+'/'+esc(i.variant.weight||'—'));
     if(i.colors && i.colors.some(Boolean)) bits.push('ألوان: '+i.colors.filter(Boolean).map(esc).join('،'));
-    return bits.join(' — ');
-  }).join('<br>');
+    /* الصورة: أول لو محفوظة جوه الطلب نفسه وقت الشراء (تفضل ظاهرة حتى لو
+       المنتج اتحذف بعدين)، وإلا من نسخة المنتج الحالية لو لسه موجود */
+    const liveProduct = i.productId ? products.find(p=>p.id===i.productId) : null;
+    const img = i.image || liveProduct?.image || '';
+    return `<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+      ${img
+        ? `<img src="${esc(img)}" style="width:38px;height:38px;object-fit:cover;border-radius:6px;flex-shrink:0;border:1px solid var(--line-dark)">`
+        : `<div style="width:38px;height:38px;border-radius:6px;background:var(--ink-2);flex-shrink:0"></div>`}
+      <div style="flex:1;min-width:0">
+        <div>${bits.join(' — ')}</div>
+        ${i.productId? `<button type="button" class="btn btn-outline btn-sm" style="padding:2px 8px;font-size:10.5px;margin-top:3px" onclick="openOrderItemDetail('${esc(i.productId)}')">تفاصيل المنتج</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+/* فتح تفاصيل منتج من جوه طلب — بيستخدم نفس شاشة تفاصيل المنتج الموجودة
+   (openProductDetail/renderProductDetail) بدل ما يعمل نظام مكرر، ولو المنتج
+   اتحذف من قبل كده بيوضح ده بدون أي Crash */
+function openOrderItemDetail(productId){
+  const p = products.find(x=>x.id===productId);
+  if(!p){ toast('المنتج لم يعد متاحًا أو تم حذفه.'); return; }
+  openProductDetail(productId);
 }
 function normalizePhone(phone){
   let p = String(phone||'').replace(/[^0-9+]/g,'');
@@ -1741,7 +1770,8 @@ async function submitProfile(e){
 db.collection('products').orderBy('createdAt','desc').onSnapshot(snap=>{
   products = snap.docs.map(d=>({id:d.id,...d.data()}));
   renderStoreProducts();
-  renderTeamProducts();
+  renderTeamProducts('teamProductsTable');
+  renderTeamProducts('warehouseStockTable');
   if(currentPdProduct && document.getElementById('productDetailModalWrap').classList.contains('active')){
     const fresh = products.find(x=>x.id===currentPdProduct.id);
     if(fresh) renderProductDetail(fresh);
@@ -2067,6 +2097,7 @@ async function confirmOrderOptions(e){
   const unitPrice = tierUnitPrice(p, qty);
   cart.push({
     productId: p.id, name:p.name, category:p.category||'', gender:p.gender||'', price: unitPrice, qty, colors, variant,
+    image: p.image||(Array.isArray(p.images)&&p.images[0])||'',
   });
   renderCart();
   closeModal('orderOptionsModalWrap');
@@ -2296,7 +2327,7 @@ async function submitOrder(e){
     phone: document.getElementById('ckPhone').value.trim(),
     address: document.getElementById('ckAddress').value.trim(),
     notes: document.getElementById('ckNotes').value.trim(),
-    items: cart.map(c=>({productId:c.productId,name:c.name,category:c.category||'',gender:c.gender||'',price:c.price,qty:c.qty,colors:c.colors||[],variant:c.variant||null})),
+    items: cart.map(c=>({productId:c.productId,name:c.name,category:c.category||'',gender:c.gender||'',price:c.price,qty:c.qty,colors:c.colors||[],variant:c.variant||null,image:c.image||''})),
     subtotal: cartTotal(),
     shippingFee: SHIPPING_FEE,
     total: cartTotal() + SHIPPING_FEE,
@@ -2486,10 +2517,11 @@ function renderDeptLeadHints(){
   });
 }
 function warehouseTab(name){
-  ['purchases','suppliers','items','movements'].forEach(t=>{
+  ['stock','purchases','suppliers','items','movements'].forEach(t=>{
     document.getElementById('wh-tab-'+t).style.display = (t===name)?'block':'none';
   });
   document.querySelectorAll('#team-tab-purchases .wh-subtabs button').forEach(b=>b.classList.toggle('active', b.dataset.wh===name));
+  if(name==='stock') renderTeamProducts('warehouseStockTable');
 }
 function shipTab(name){
   ['orders','companies'].forEach(t=>{
@@ -3297,8 +3329,8 @@ async function removeEmployee(id){
   await db.collection('employees').doc(id).delete();
 }
 
-function renderTeamProducts(){
-  const tbody = document.getElementById('teamProductsTable');
+function renderTeamProducts(targetId){
+  const tbody = document.getElementById(targetId||'teamProductsTable');
   if(!tbody) return;
   tbody.innerHTML = products.map(p=>{
     const stock = Number(p.stock||0);
@@ -3507,6 +3539,21 @@ function renderPurchaseGenderSelect(){
   const current = sel.value;
   sel.innerHTML = '<option value="">اختر النوع</option>' + Object.entries(GENDER_LABELS).map(([k,l])=>`<option value="${k}">${l}</option>`).join('');
   if(current) sel.value = current;
+  renderPurchaseItemTypeSelect();
+}
+/* قايمة الصنف في فورم المشتريات — بتتغير حسب النوع المختار، وفيها خيار
+   إضافة صنف جديد على طول من نفس الفورم بدل ما تكتبه كنص حر */
+function renderPurchaseItemTypeSelect(){
+  const genderSel = document.getElementById('purchaseGender');
+  const itemSel = document.getElementById('purchaseItemType');
+  if(!genderSel || !itemSel) return;
+  const gender = genderSel.value;
+  const current = itemSel.value;
+  const types = gender ? itemTypesForGender(gender) : [];
+  itemSel.innerHTML =
+    (gender ? types.map(t=>`<option value="${t.id}">${esc(t.label)}</option>`).join('') : '<option value="">اختر النوع أولًا</option>') +
+    (gender ? '<option value="__new__">+ إضافة صنف جديد…</option>' : '');
+  if(types.some(t=>t.id===current)) itemSel.value = current;
 }
 function listenPurchases(){
   db.collection('purchases').orderBy('createdAt','desc').onSnapshot(snap=>{
@@ -3579,24 +3626,29 @@ function onPurchaseSupplierChange(supplierId){
 async function submitPurchase(e){
   e.preventDefault();
   const gender = document.getElementById('purchaseGender').value;
-  const label = document.getElementById('purchaseItemType').value.trim();
+  let itemTypeId = document.getElementById('purchaseItemType').value;
   const qty = Number(document.getElementById('purchaseQty').value);
   const unitCost = Number(document.getElementById('purchaseUnitCost').value);
   const supplierId = document.getElementById('purchaseSupplierId').value;
   const supplier = suppliersCache.find(s=>s.id===supplierId);
   const note = document.getElementById('purchaseNote').value.trim();
-  if(!gender || !label || !qty || !unitCost){ toast('استكمل بيانات عملية الشراء'); return; }
+  if(!gender || !itemTypeId || !qty || !unitCost){ toast('استكمل بيانات عملية الشراء'); return; }
   try{
-    /* لو الصنف موجود قبل كده لنفس النوع، بنستخدمه؛ لو جديد، بنضيفه لقايمة الأصناف */
-    let itemType = itemTypesCache.find(t=>t.gender===gender && t.label.trim().toLowerCase()===label.toLowerCase());
-    let itemTypeId, itemTypeLabelSaved;
-    if(itemType){
-      itemTypeId = itemType.id;
-      itemTypeLabelSaved = itemType.label;
+    let itemTypeLabelSaved;
+    if(itemTypeId==='__new__'){
+      const label = (prompt('اسم الصنف الجديد:')||'').trim();
+      if(!label){ toast('لازم تدخل اسم الصنف'); return; }
+      const exists = itemTypesCache.find(t=>t.gender===gender && t.label.trim().toLowerCase()===label.toLowerCase());
+      if(exists){
+        itemTypeId = exists.id; itemTypeLabelSaved = exists.label;
+      } else {
+        const newDoc = await db.collection('itemTypes').add({gender, label, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+        itemTypeId = newDoc.id; itemTypeLabelSaved = label;
+      }
     } else {
-      const newDoc = await db.collection('itemTypes').add({gender, label, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
-      itemTypeId = newDoc.id;
-      itemTypeLabelSaved = label;
+      const itemType = itemTypesCache.find(t=>t.id===itemTypeId);
+      if(!itemType){ toast('الصنف ده مش موجود، اختر من القايمة تاني'); return; }
+      itemTypeLabelSaved = itemType.label;
     }
     await db.collection('purchases').add({
       invoiceNo: 'INV-' + String(purchasesCache.length + 1).padStart(5,'0'),
